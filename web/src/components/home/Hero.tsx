@@ -6,12 +6,10 @@ import { Typewriter } from './Typewriter';
  * 01 / Hero (homepage brief): black, no photograph. Large centred type that
  * writes each line, holds, backspaces and writes the next (lines from the CMS,
  * Home page → Hero lines), with both calls to action always visible beneath.
- * The thin glitch marks at the edges echo the brand's Instagram frames.
  */
 export function Hero({ lines }: { lines: string[] }) {
   return (
     <section aria-labelledby="hero-title" className="grain relative isolate overflow-hidden bg-ink text-white">
-      <GlitchMarks />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
@@ -46,40 +44,5 @@ export function Hero({ lines }: { lines: string[] }) {
         </span>
       </div>
     </section>
-  );
-}
-
-/** Short horizontal strokes, white and red, at the left and right edges, like a signal breaking up. */
-function GlitchMarks() {
-  const left: [number, number, boolean][] = [
-    [24, 64, false],
-    [26, 28, true],
-    [31, 44, false],
-    [62, 36, true],
-    [64, 72, false],
-  ];
-  const right: [number, number, boolean][] = [
-    [38, 52, false],
-    [40, 22, true],
-    [70, 60, false],
-    [72, 30, true],
-  ];
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block">
-      {left.map(([top, width, red], i) => (
-        <span
-          key={`l${i}`}
-          className={`absolute left-0 h-[2px] ${red ? 'bg-signal' : 'bg-white/25'}`}
-          style={{ top: `${top}%`, width }}
-        />
-      ))}
-      {right.map(([top, width, red], i) => (
-        <span
-          key={`r${i}`}
-          className={`absolute right-0 h-[2px] ${red ? 'bg-signal' : 'bg-white/20'}`}
-          style={{ top: `${top}%`, width }}
-        />
-      ))}
-    </div>
   );
 }

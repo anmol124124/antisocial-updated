@@ -6,9 +6,6 @@ import { Reveal } from '@/components/ui/Reveal';
 export function FinalCta() {
   return (
     <section aria-labelledby="final-title" className="grain relative isolate overflow-hidden bg-ink text-white">
-      <span aria-hidden className="absolute left-0 top-[28%] hidden h-[2px] w-16 bg-signal md:block" />
-      <span aria-hidden className="absolute right-0 top-[62%] hidden h-[2px] w-24 bg-white/20 md:block" />
-
       <Container className="relative z-10 py-24 text-center lg:py-36">
         <Reveal>
           <h2 id="final-title" className="headline text-[clamp(3rem,8.5vw,7rem)]">
