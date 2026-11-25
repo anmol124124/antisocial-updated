@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { PageHero } from '@/components/site/PageHero';
 import { Button } from '@/components/ui/Button';
 import { Band, Cards, GuideLinks, JoinActions, Note } from '@/components/chapters/Blocks';
-import { CHAPTER_ACTIVITIES, CHAPTER_FRAMEWORK, FIRST_EVENT_RUNSHEET, MISSION } from '@/lib/chapter-content';
+import { getChapterGuide } from '@/lib/site-content';
 
 export const metadata: Metadata = {
   title: 'What Happens in a Chapter?',
@@ -10,10 +10,11 @@ export const metadata: Metadata = {
   alternates: { canonical: '/chapters/what-happens' },
 };
 
-export default function WhatHappensPage() {
+export default async function WhatHappensPage() {
+  const guide = await getChapterGuide();
   return (
     <>
-      <PageHero eyebrow="What Happens in a Chapter?" title="Local voices." accent="Local stories." lede={MISSION}>
+      <PageHero eyebrow="What Happens in a Chapter?" title="Local voices." accent="Local stories." lede={guide.mission}>
         <div className="flex flex-wrap gap-3">
           <Button href="/chapters" variant="solid-light" arrow>
             See the Chapters
@@ -25,12 +26,12 @@ export default function WhatHappensPage() {
       </PageHero>
 
       <Band eyebrow="Inside a Chapter" title="What a chapter does.">
-        <Cards items={CHAPTER_ACTIVITIES} cols={5} />
-        <Note>{CHAPTER_FRAMEWORK}</Note>
+        <Cards items={guide.activities} cols={5} />
+        <Note>{guide.framework}</Note>
       </Band>
 
       <Band tone="dark" eyebrow="A Typical Evening" title="The first conversation, in 90 minutes." lede="Three speakers. About 20 to 50 attendees. One theme.">
-        <Cards tone="dark" cols={5} items={FIRST_EVENT_RUNSHEET.map((r) => ({ label: r.time, title: r.title, body: r.body }))} />
+        <Cards tone="dark" cols={5} items={guide.runsheet.map((r) => ({ label: r.time, title: r.title, body: r.body }))} />
       </Band>
 
       <Band eyebrow="Guides" title="Go deeper.">

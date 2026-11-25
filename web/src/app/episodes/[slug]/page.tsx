@@ -7,9 +7,8 @@ import { Eyebrow } from '@/components/ui/Eyebrow';
 import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 import { EpisodePlayer } from '@/components/episodes/EpisodePlayer';
-import { TEASER } from '@/lib/teaser';
 import { GuestCard } from '@/components/guests/GuestCard';
-import { YOUTUBE_URL } from '@/components/site/nav';
+import { getHomePage, getSiteSettings, youtubeChannel } from '@/lib/site-content';
 import {
   getEpisodeBySlug,
   getEpisodes,
@@ -52,7 +51,9 @@ function hostOf(host: Episode['host']) {
 
 export default async function EpisodePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [episode, allGuests] = await Promise.all([getEpisodeBySlug(slug), getGuests(200)]);
+  const [episode, allGuests, home, settings] = await Promise.all([getEpisodeBySlug(slug), getGuests(200), getHomePage(), getSiteSettings()]);
+  const youtube = youtubeChannel(settings);
+  const teaser = home.teaser;
 
   if (!episode) notFound();
 
@@ -147,11 +148,11 @@ export default async function EpisodePage({ params }: { params: Promise<{ slug: 
                       </Button>
                     )}
                   </>
-                ) : (
-                  <Button href={YOUTUBE_URL} external variant="solid-light" arrow>
+                ) : youtube ? (
+                  <Button href={youtube} external variant="solid-light" arrow>
                     Subscribe for the drop
                   </Button>
-                )}
+                ) : null}
                 <Button href="/community/question" variant="outline-light" arrow>
                   Submit a Question
                 </Button>
@@ -162,9 +163,9 @@ export default async function EpisodePage({ params }: { params: Promise<{ slug: 
               <EpisodePlayer
                 videoId={videoId}
                 title={episode.title}
-                posterSrc={TEASER.poster}
-                previewSrc={published ? null : TEASER.src}
-                captionsSrc={TEASER.captions}
+                posterSrc={teaser?.poster ?? undefined}
+                previewSrc={published ? null : (teaser?.src ?? null)}
+                captionsSrc={teaser?.captions ?? null}
               />
             </Reveal>
           </div>

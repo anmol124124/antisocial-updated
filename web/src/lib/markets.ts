@@ -16,6 +16,9 @@ export const MARKETS = {
   AE: { code: 'AE', label: 'United Arab Emirates', currency: 'USD' },
 } as const;
 
+/** An event ticket's currency when the event doesn't name one (the CMS field says so too). */
+export const DEFAULT_TICKET_CURRENCY = MARKETS.IN.currency;
+
 /** Where the shop delivers, for messages. */
 export const DELIVERS_TO = 'India, the United States, Canada, the United Kingdom and the UAE';
 

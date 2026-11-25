@@ -8,7 +8,7 @@ import {
   getShopProducts,
   slugify,
 } from '@/lib/content';
-import { WAYS } from '@/lib/community';
+import { COMMUNITY_FORMS } from '@/lib/community';
 import { APPLICATIONS, COMMUNITY_OPTIONS } from '@/lib/chapters';
 
 export const revalidate = 3600;
@@ -53,8 +53,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: path === '' ? 1 : 0.8,
     })),
-    ...WAYS.map((way) => ({
-      url: `${base}/community/${way.slug}`,
+    ...COMMUNITY_FORMS.map((slug) => ({
+      url: `${base}/community/${slug}`,
       lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.6,

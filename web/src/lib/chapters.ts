@@ -7,6 +7,7 @@
  */
 
 import type { EventStatus } from './content';
+import { DEFAULT_TICKET_CURRENCY } from './markets';
 
 /* ─────────────────────────── legal links ─────────────────────────── */
 
@@ -95,7 +96,7 @@ export type TicketPrice = { amount: number; currency: string };
 export function ticketPrice(event: { ticket_price: number | string | null; ticket_currency: string | null }): TicketPrice | null {
   const amount = Number(event.ticket_price);
   if (!Number.isFinite(amount) || amount <= 0) return null;
-  return { amount, currency: (event.ticket_currency || 'INR').toUpperCase() };
+  return { amount, currency: (event.ticket_currency || DEFAULT_TICKET_CURRENCY).toUpperCase() };
 }
 
 export function formatPrice({ amount, currency }: TicketPrice): string {

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { pageLinks } from '@/lib/meta';
+import { getRoadshowStops } from '@/lib/site-content';
 import { PageHero } from '@/components/site/PageHero';
 import { Container } from '@/components/ui/Container';
 import { Eyebrow } from '@/components/ui/Eyebrow';
@@ -13,16 +14,9 @@ export const metadata: Metadata = {
     'Chandigarh to Mumbai. Cars, conversations, and whoever’s brave enough to grab the mic.',
 };
 
-/**
- * Only the two ends of the India route are known so far. Stops go in ROUTE
- * as they're confirmed — the strip renders however many there are.
- */
-const ROUTE = [
-  { city: 'Chandigarh', note: 'Start line' },
-  { city: 'Mumbai', note: 'Finish line' },
-];
-
-export default function RoadshowPage() {
+export default async function RoadshowPage() {
+  // The stops, in route order (Roadshow stops in the CMS). The strip renders however many there are.
+  const route = await getRoadshowStops();
   return (
     <>
       <PageHero
@@ -58,12 +52,12 @@ export default function RoadshowPage() {
                 aria-hidden
                 className="absolute left-[0.6875rem] top-3 bottom-3 w-px border-l-2 border-dashed border-ink/20 sm:left-3 sm:right-3 sm:top-[0.6875rem] sm:bottom-auto sm:h-px sm:w-auto sm:border-l-0 sm:border-t-2"
               />
-              {ROUTE.map((stop, i) => (
+              {route.map((stop, i) => (
                 <li
                   key={stop.city}
                   className={`relative flex items-center gap-5 sm:flex-col sm:gap-4 ${
                     // The last stop sits flush right so the road ends on its dot.
-                    i === ROUTE.length - 1 && ROUTE.length > 1 ? 'sm:items-end sm:text-right' : 'sm:items-start'
+                    i === route.length - 1 && route.length > 1 ? 'sm:items-end sm:text-right' : 'sm:items-start'
                   }`}
                 >
                   <span aria-hidden className="relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-ink">

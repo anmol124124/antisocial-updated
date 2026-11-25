@@ -1,6 +1,8 @@
 // Sample CMS content shared by the unit tests and the end-to-end run. A fresh
 // copy every call, so a test can change rows freely.
 
+import { readFileSync } from 'node:fs';
+
 const PNG_1x1 = Uint8Array.from(
   Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64'),
 );
@@ -20,8 +22,21 @@ export const FILES = {
 
 const SITE = 'https://stage.antisocialtalks.com';
 
+/**
+ * The site-wide settings and page copy, taken from the real starting content
+ * (cms/seed/content.json) so the tests check the wording the site ships with.
+ * Seed pictures become the 1x1 test PNG; the teaser clip is left out.
+ */
+const SITE_SEED = JSON.parse(readFileSync(new URL('../../../cms/seed/content.json', import.meta.url), 'utf8'));
+const withTestFiles = (row) =>
+  Object.fromEntries(
+    Object.entries(row).map(([k, v]) => [k, v && typeof v === 'object' && !Array.isArray(v) && 'file' in v ? (/\.(mp4|webm)$/.test(v.file) ? null : FILES.photo) : v]),
+  );
+
 export function seed({ future = '2099-01-01T00:00:00.000Z' } = {}) {
   return {
+    __singletons: Object.fromEntries(Object.entries(SITE_SEED.singletons).map(([k, v]) => [k, withTestFiles(v)])),
+    ...Object.fromEntries(Object.entries(SITE_SEED.collections).map(([k, rows]) => [k, rows.map((r, i) => ({ id: i + 1, ...withTestFiles(r) }))])),
     __files: [
       { id: FILES.mockup, type: 'image/png', bytes: PNG_1x1 },
       { id: FILES.front, type: 'image/png', bytes: PNG_1x1 },
@@ -52,7 +67,7 @@ export function seed({ future = '2099-01-01T00:00:00.000Z' } = {}) {
       { id: 2, name: 'Gauri G', designation: 'Dancer | Actor', photo: null, bio: 'Bio two.', teaser: 'She can play a role.', instagram_url: null, paired_with_label: null, home_position: 2, host: null, episode: { id: 1, title: 'Episode 01: The AntiSocial Question', status: 'archived' }, status: 'published' },
       { id: 3, name: 'Dr. Anmol Kapoor', designation: 'Founder & Chairman', photo: null, bio: 'Bio three.', teaser: 'If everyone agrees…', instagram_url: null, paired_with_label: null, home_position: 3, host: null, episode: null, status: 'published' },
       // Renamed from "Reem Elkott": the old address forwards here.
-      { id: 5, name: 'Reem Elkot', designation: 'Creator', photo: null, bio: 'Bio five.', teaser: null, instagram_url: null, paired_with_label: null, home_position: null, host: null, episode: null, status: 'published' },
+      { id: 5, name: 'Reem Elkot', previous_slugs: ['reem-elkott'], designation: 'Creator', photo: null, bio: 'Bio five.', teaser: null, instagram_url: null, paired_with_label: null, home_position: null, host: null, episode: null, status: 'published' },
       { id: 4, name: 'Hidden Guest', designation: 'Draft', photo: null, bio: null, teaser: null, instagram_url: null, paired_with_label: null, home_position: null, host: null, episode: null, status: 'draft' },
     ],
     topics: ['Human', 'Health', 'Science', 'Technology', 'Business', 'Society', 'The Future'].map((title, i) => ({

@@ -1,0 +1,397 @@
+{
+  "kind": "antisocialtalks-cms-seed",
+  "version": 1,
+  "note": "Starting content for the collections added in the restructure. cms/scripts/provision.mjs loads each one only while it is still empty, so edits made in the CMS are never overwritten.",
+  "singletons": {
+    "site_settings": {
+      "contact_email": "admin@antisocialtalks.com",
+      "instagram_url": "https://www.instagram.com/antisocialtalksofficial",
+      "youtube_url": "https://www.youtube.com/@antisocialtalks-u6j",
+      "spotify_url": "https://open.spotify.com/show/66DmoJEVAPPMU2Sfpi3FAA",
+      "tiktok_url": "https://www.tiktok.com/@antisocialtalks",
+      "x_url": "https://x.com/antisocialtalks",
+      "linkedin_url": "https://www.linkedin.com/company/anti-social-talks/",
+      "share_image": {
+        "file": "files/og-image.jpg",
+        "title": "Default share picture"
+      }
+    },
+    "home_page": {
+      "hero_image": {
+        "file": "files/hero-portrait.jpg",
+        "title": "Home: hero portrait"
+      },
+      "hero_image_alt": "Black-and-white portrait of a woman looking into the distance",
+      "teaser_video": {
+        "file": "files/teaser.mp4",
+        "title": "Teaser clip"
+      },
+      "teaser_poster": {
+        "file": "files/episode-cover.jpg",
+        "title": "Teaser poster"
+      },
+      "teaser_label": "AntiSocialTalks teaser",
+      "topics": [
+        "Human",
+        "Health",
+        "Science",
+        "Technology",
+        "Business",
+        "Society",
+        "The Future",
+        "Identity",
+        "Money",
+        "Belief"
+      ],
+      "question_image": {
+        "file": "files/question-say-what-others-wont.jpg",
+        "title": "Home: the question"
+      },
+      "question_image_alt": "A woman listening at a podcast microphone, with the words: Say what others won’t."
+    },
+    "chapter_guide": {
+      "mission": "Bring meaningful conversations to communities around the world, through podcasts, live talks, events and local storytelling.",
+      "vision": "A global network of local chapters. Don’t just attend inspiring talks. Create the platform that makes them possible.",
+      "network": "AntiSocial Talks is building a global network of local chapters that bring meaningful conversations to communities around the world, through podcasts, live talks, events and local storytelling.",
+      "framework": "Every chapter runs its own programme inside the global brand and chapter standards. The global team provides the framework, brand guidance, speaker standards and onboarding. Training, support and any financial terms are written into the official chapter programme.",
+      "activities": [
+        {
+          "title": "Host conversations",
+          "body": "Podcasts, interviews, live talks, panels, moderated discussions."
+        },
+        {
+          "title": "Discover speakers",
+          "body": "Experts and emerging voices, including people who have never had a platform."
+        },
+        {
+          "title": "Build a community",
+          "body": "People who want to think critically, listen openly and learn."
+        },
+        {
+          "title": "Create stories",
+          "body": "Video, audio and written content, with consent and production support."
+        },
+        {
+          "title": "Create opportunities",
+          "body": "Help speakers meet collaborators and turn inspiration into action."
+        }
+      ],
+      "founder_questions": [
+        {
+          "label": "Where",
+          "body": "City and country for the chapter"
+        },
+        {
+          "label": "Why",
+          "body": "Why the mission matters to you"
+        },
+        {
+          "label": "Who",
+          "body": "Alone, or with a founding team"
+        },
+        {
+          "label": "What",
+          "body": "Conversations and events you want to create"
+        },
+        {
+          "label": "How",
+          "body": "First steps: speakers, venues, connections"
+        }
+      ],
+      "founder_steps": [
+        "Expression of interest",
+        "Founder orientation",
+        "Submit a launch plan",
+        "Chapter approval and terms",
+        "Launch the first event",
+        "Grow the chapter"
+      ],
+      "founder_steps_note": "After the form, a conversation checks fit and explains chapter standards. The central team reviews the plan and authorises use of the chapter brand.",
+      "first_30_days": [
+        {
+          "days": "Days 1–5",
+          "title": "Define your vision",
+          "body": "Why your city needs a chapter. Write a short local statement."
+        },
+        {
+          "days": "Days 6–10",
+          "title": "Find your people",
+          "body": "Recruit two to five people with complementary strengths."
+        },
+        {
+          "days": "Days 11–15",
+          "title": "Discover speakers",
+          "body": "Build a shortlist. Look for ideas and stories, not job titles."
+        },
+        {
+          "days": "Days 16–20",
+          "title": "Plan your first event",
+          "body": "Theme, speakers, venue, budget, schedule, recording permissions."
+        },
+        {
+          "days": "Days 21–25",
+          "title": "Invite your audience",
+          "body": "Event page, networks, community groups. Right audience over biggest."
+        },
+        {
+          "days": "Days 26–30",
+          "title": "Deliver and learn",
+          "body": "Host, thank everyone, collect feedback, plan the next one."
+        }
+      ],
+      "first_30_days_note": "This is a suggested schedule only. Real timing depends on chapter approval, venue, speaker commitments and local requirements.",
+      "runsheet": [
+        {
+          "time": "00:00–00:10",
+          "title": "Welcome",
+          "body": "Introduce AntiSocial Talks, the theme and the speakers."
+        },
+        {
+          "time": "00:10–00:40",
+          "title": "Three ideas",
+          "body": "About 10 minutes each, three distinct views."
+        },
+        {
+          "time": "00:40–01:00",
+          "title": "The conversation",
+          "body": "A moderator explores differences and open questions."
+        },
+        {
+          "time": "01:00–01:15",
+          "title": "Audience questions",
+          "body": "Thoughtful questions and respectful disagreement."
+        },
+        {
+          "time": "01:15–01:30",
+          "title": "What happens next",
+          "body": "Nominations, volunteers, next steps for the chapter."
+        }
+      ],
+      "event_guide_steps": [
+        "Choose a theme",
+        "Build the programme",
+        "Find a venue",
+        "Set a budget",
+        "Promote",
+        "Prepare speakers and host",
+        "Deliver",
+        "Continue the conversation"
+      ],
+      "event_guide_note": "Venue, insurance, permits, recording permissions and budget transparency are part of every event plan, agreed with the central team before anything is announced.",
+      "talent_sources": "Universities and research. Startups and founders. Community groups and nonprofits. Arts and creative communities. Professional and scientific networks. The wider community, by personal recommendation.",
+      "speaker_qualities": "A clear idea, honest communication, willingness to prepare, fit for the audience. Judged on the contribution, not on fame.",
+      "join_actions": [
+        {
+          "href": "/chapters/start",
+          "title": "Start a Chapter",
+          "body": "Ready to lead? Start a chapter in your city."
+        },
+        {
+          "href": "/chapters/apply/speak",
+          "title": "Nominate a Speaker",
+          "body": "Know someone with a remarkable idea?"
+        },
+        {
+          "href": "/chapters/apply/local-team",
+          "title": "Become a Volunteer",
+          "body": "Want to help make it happen?"
+        },
+        {
+          "href": "/chapters/how-to-organise",
+          "title": "Plan Your First Event",
+          "body": "The 90-minute format and the full guide."
+        }
+      ],
+      "guides": [
+        {
+          "href": "/chapters/become-a-leader",
+          "title": "Become a Chapter Leader",
+          "body": "What leading a chapter means, and the support you get."
+        },
+        {
+          "href": "/chapters/what-happens",
+          "title": "What Happens in a Chapter?",
+          "body": "Conversations, speakers, community, stories, opportunities."
+        },
+        {
+          "href": "/chapters/how-to-start",
+          "title": "How to Start Your Chapter",
+          "body": "From decision to first event in 30 days."
+        },
+        {
+          "href": "/chapters/discover-talent",
+          "title": "Discover Talent",
+          "body": "Find the voices the world hasn’t heard yet."
+        },
+        {
+          "href": "/chapters/how-to-organise",
+          "title": "How to Organise an Event",
+          "body": "A repeatable 90-minute first event."
+        }
+      ]
+    }
+  },
+  "collections": {
+    "home_pillars": [
+      {
+        "sort": 1,
+        "title": "AntiSocial Stories",
+        "blurb": "Stories from people who rarely get asked.",
+        "cta_label": "Explore Stories",
+        "link": "/stories",
+        "image": {
+          "file": "files/pillar-stories.jpg",
+          "title": "Home card: AntiSocial Stories"
+        },
+        "image_alt": "A woman smiling mid-conversation across a podcast microphone",
+        "image_position": null
+      },
+      {
+        "sort": 2,
+        "title": "AntiSocial Events",
+        "blurb": "Socially Unfiltered.",
+        "cta_label": "Explore Events",
+        "link": "/events",
+        "image": {
+          "file": "files/pillar-events.png",
+          "title": "Home card: AntiSocial Events"
+        },
+        "image_alt": "The AntiSocialTalks crew talking by their cars at sunset, behind an AntiSocialTalks banner",
+        "image_position": "31% 50%"
+      },
+      {
+        "sort": 3,
+        "title": "The AntiSocial Shop",
+        "blurb": "Wear the conversation.",
+        "cta_label": "Shop the Drop",
+        "link": "/shop",
+        "image": {
+          "file": "files/pillar-shop-drop.jpg",
+          "title": "Home card: The AntiSocial Shop"
+        },
+        "image_alt": "Two models in black AntiSocialTalks merch: the “Not anti-opinion. Anti-bulls*it.” tee and the “They called us antisocial. We decided to talk.” hoodie",
+        "image_position": null
+      }
+    ],
+    "about_values": [
+      {
+        "sort": 1,
+        "title": "Better questions",
+        "body": "We look for the question that makes a guest stop and think before they answer."
+      },
+      {
+        "sort": 2,
+        "title": "No easy outs",
+        "body": "We keep the awkward parts of the conversation that most interviews edit out."
+      },
+      {
+        "sort": 3,
+        "title": "Everyone has a voice",
+        "body": "Founders, scientists, artists and athletes, alongside people who have never been interviewed before. What matters is having something to say."
+      },
+      {
+        "sort": 4,
+        "title": "Anti-silence",
+        "body": "We are not against society. We are against keeping quiet about the things that matter."
+      }
+    ],
+    "community_ways": [
+      {
+        "sort": 1,
+        "slug": "story",
+        "title": "Share Your Story",
+        "cta": "Tell Your Story",
+        "blurb": "Something happened that you’ve never talked about publicly.",
+        "heading": "Tell us what happened",
+        "accent": "and why it stayed with you.",
+        "lede": "Some of our best conversations come from people who have never been interviewed before. If you have a story like that, tell us here.",
+        "message_label": "Your story",
+        "message_placeholder": "What happened, and why does it still matter to you?",
+        "submit_label": "Share my story",
+        "show_interest": true
+      },
+      {
+        "sort": 2,
+        "slug": "question",
+        "title": "Submit a Question",
+        "cta": "Ask Your Question",
+        "blurb": "A question you’d like us to put to a guest.",
+        "heading": "Ask the question",
+        "accent": "nobody else will.",
+        "lede": "If we use your question with a guest, we’ll credit you on the episode.",
+        "message_label": "Your question",
+        "message_placeholder": "What would you ask, and who would you ask it of?",
+        "submit_label": "Submit my question",
+        "show_interest": false
+      },
+      {
+        "sort": 3,
+        "slug": "speaker",
+        "title": "Suggest a Speaker",
+        "cta": "Nominate Someone",
+        "blurb": "Someone you think we should interview.",
+        "heading": "Point us at someone",
+        "accent": "worth listening to.",
+        "lede": "They don’t need to be famous. Tell us who they are and why you think people should hear from them.",
+        "message_label": "Who should we talk to?",
+        "message_placeholder": "Their name, what they do, and what makes their thinking worth an hour.",
+        "submit_label": "Suggest them",
+        "show_interest": false
+      },
+      {
+        "sort": 4,
+        "slug": "community",
+        "title": "Join the Community",
+        "cta": "Join Now",
+        "blurb": "Be part of the conversation.",
+        "heading": "Be part of",
+        "accent": "the conversation.",
+        "lede": "We email you when a new episode comes out or a chapter opens in your city. That’s all we send.",
+        "message_label": "Anything you want us to know",
+        "message_placeholder": "Optional. What brought you here?",
+        "submit_label": "Join the community",
+        "show_interest": false
+      },
+      {
+        "sort": 5,
+        "slug": "partner",
+        "title": "Partner With Us",
+        "cta": "Start a Chapter",
+        "blurb": "Venues, sponsors and city chapters.",
+        "heading": "Bring AntiSocialTalks",
+        "accent": "to your city.",
+        "lede": "Venues, sponsors, production partners and anyone who wants to run a chapter where they live. Tell us what you have in mind.",
+        "message_label": "What do you have in mind?",
+        "message_placeholder": "Your organisation, your city, and what a partnership would look like.",
+        "submit_label": "Start the conversation",
+        "show_interest": false
+      }
+    ],
+    "roadshow_stops": [
+      {
+        "sort": 1,
+        "city": "Chandigarh",
+        "note": "Start line"
+      },
+      {
+        "sort": 2,
+        "city": "Mumbai",
+        "note": "Finish line"
+      }
+    ]
+  },
+  "updates": {
+    "guests": [
+      {
+        "match": {
+          "name": "Reem Elkot"
+        },
+        "set": {
+          "previous_slugs": [
+            "reem-elkott"
+          ]
+        }
+      }
+    ]
+  }
+}

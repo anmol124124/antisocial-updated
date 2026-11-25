@@ -449,10 +449,12 @@ describe('search engines', async () => {
     assert.equal(metaDescription('x'.repeat(300)).length, 155, 'one long word is cut hard');
   });
 
-  test('robots.txt: only the production domain may be indexed', () => {
+  test('robots.txt: only the copy with SITE_INDEXABLE=true may be indexed', () => {
     setEnv({ NEXT_PUBLIC_SITE_URL: 'https://stage.antisocialtalks.com' });
     assert.deepEqual(robots(), { rules: [{ userAgent: '*', disallow: '/' }] });
     setEnv({ NEXT_PUBLIC_SITE_URL: 'https://antisocialtalks.com' });
+    assert.deepEqual(robots(), { rules: [{ userAgent: '*', disallow: '/' }] }, 'the live address alone is not enough');
+    setEnv({ NEXT_PUBLIC_SITE_URL: 'https://antisocialtalks.com', SITE_INDEXABLE: 'true' });
     const live = robots();
     assert.equal(live.sitemap, 'https://antisocialtalks.com/sitemap.xml');
     assert.deepEqual(live.rules[0].disallow, ['/api/', '/cart', '/checkout', '/payment', '/invite/']);

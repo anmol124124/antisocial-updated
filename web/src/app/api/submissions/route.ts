@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createSubmission } from '@/lib/directus';
 import { sendMail, summarise, teamInbox } from '@/lib/mailer';
+import { isSubmissionType } from '@/lib/community';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const TYPES = new Set(['story', 'question', 'speaker', 'community', 'partner']);
 
 /**
  * Proxies the community forms and the footer newsletter into the Directus
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   if (body.website) return NextResponse.json({ ok: true });
 
   const type = String(body.type || '');
-  if (!TYPES.has(type)) {
+  if (!isSubmissionType(type)) {
     return NextResponse.json({ error: 'Unknown form.' }, { status: 400 });
   }
 

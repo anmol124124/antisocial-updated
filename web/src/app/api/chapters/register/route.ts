@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createItem, insertItem, queryItems } from '@/lib/directus';
 import { eventSlug, getEventByInviteCode, getEventBySlug, type ChapterEvent } from '@/lib/content';
 import { guestKey, invitationMail } from '@/lib/invitation';
+import { contactEmailFor } from '@/lib/site-content';
 import {
   MAX_PER_BOOKING,
   formatPrice,
@@ -214,7 +215,7 @@ async function acceptInvitation(body: Record<string, unknown>) {
   const email = String(result.values.email).toLowerCase();
   const values: Record<string, string | number | null> = { ...result.values, email };
   const key = guestKey(event.id, email);
-  const contact = event.contact_email || 'admin@antisocialtalks.com';
+  const contact = await contactEmailFor(event);
 
   let already = false;
   try {
@@ -267,7 +268,7 @@ async function acceptInvitation(body: Record<string, unknown>) {
     }
   }
 
-  const sent = await sendMail(invitationMail(event, { name: String(values.full_name), email }));
+  const sent = await sendMail(invitationMail(event, { name: String(values.full_name), email }, contact));
   if (!already && teamInbox()) {
     await sendMail({
       to: teamInbox()!,

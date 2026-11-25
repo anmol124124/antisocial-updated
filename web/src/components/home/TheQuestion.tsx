@@ -3,6 +3,7 @@ import { Eyebrow } from '@/components/ui/Eyebrow';
 import { Button } from '@/components/ui/Button';
 import { Media } from '@/components/ui/Media';
 import { Reveal } from '@/components/ui/Reveal';
+import type { Picture } from '@/lib/site-content';
 
 /**
  * The signature question every guest is asked. Treated as the visual centre of
@@ -11,7 +12,7 @@ import { Reveal } from '@/components/ui/Reveal';
  * The image has its own words baked into the lower-left corner, so it is kept
  * square — the same shape as the file — and never cropped.
  */
-export function TheQuestion() {
+export function TheQuestion({ image }: { image: Picture | null }) {
   return (
     <section aria-labelledby="question-title" className="bg-cream-deep py-20 lg:py-28">
       <Container>
@@ -34,8 +35,8 @@ export function TheQuestion() {
 
           <Reveal delay={100} className="group">
             <Media
-              src="/images/question-say-what-others-wont.jpg"
-              alt="A woman listening at a podcast microphone, with the words: Say what others won’t."
+              src={image?.src}
+              alt={image?.alt || ''}
               sizes="(max-width: 1023px) 100vw, 33vw"
               className="aspect-square w-full rounded-[1.75rem]"
             />

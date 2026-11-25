@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { Container } from '@/components/ui/Container';
 import { Logo } from './Logo';
-import { footerNav, SOCIAL_LINKS } from './nav';
+import { footerNav } from './nav';
+import { getSiteSettings } from '@/lib/site-content';
 import { SocialIcon } from '@/components/ui/SocialIcons';
 import { NewsletterForm } from '@/components/forms/NewsletterForm';
 
-export function Footer() {
+export async function Footer() {
+  const { social } = await getSiteSettings();
   return (
     <footer className="grain relative border-t border-white/10 bg-ink text-white">
       <Container className="relative z-10 py-16 lg:py-20">
@@ -36,7 +38,7 @@ export function Footer() {
           <div>
             <h4 className="eyebrow mb-5 text-white/45">Listen &amp; Follow</h4>
             <ul className="space-y-3">
-              {SOCIAL_LINKS.map((s) => (
+              {social.map((s) => (
                 <li key={s.key}>
                   <a
                     href={s.href}

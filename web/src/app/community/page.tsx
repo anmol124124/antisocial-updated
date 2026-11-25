@@ -6,7 +6,7 @@ import { Container } from '@/components/ui/Container';
 import { Eyebrow } from '@/components/ui/Eyebrow';
 import { Reveal } from '@/components/ui/Reveal';
 import { SubmissionForm } from '@/components/forms/SubmissionForm';
-import { WAYS } from '@/lib/community';
+import { getCommunityWays } from '@/lib/site-content';
 
 export const metadata: Metadata = {
   ...pageLinks('/community'),
@@ -15,7 +15,8 @@ export const metadata: Metadata = {
     'Share your story, submit a question, suggest a speaker, join the community or partner with us.',
 };
 
-export default function CommunityPage() {
+export default async function CommunityPage() {
+  const ways = await getCommunityWays();
   return (
     <>
       <PageHero
@@ -35,7 +36,7 @@ export default function CommunityPage() {
           </Reveal>
 
           <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {WAYS.filter((w) => w.slug !== 'community').map((way, i) => (
+            {ways.filter((w) => w.slug !== 'community').map((way, i) => (
               <li key={way.slug}>
                 <Reveal delay={i * 70}>
                   <Link

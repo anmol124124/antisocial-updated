@@ -81,7 +81,10 @@ const json = (status, body) => new Response(body === undefined ? null : JSON.str
 export function createDirectus(seed = {}, { failCreate = [] } = {}) {
   const db = {};
   const ids = {};
+  // Singleton collections (one record, e.g. site_settings): GET /items/<name> answers with the object.
+  const singletons = { ...(seed.__singletons || {}) };
   for (const [col, rows] of Object.entries(seed)) {
+    if (col === '__singletons') continue;
     db[col] = rows.map((r) => ({ ...r }));
     ids[col] = Math.max(0, ...db[col].map((r) => Number(r.id) || 0));
   }
@@ -93,6 +96,10 @@ export function createDirectus(seed = {}, { failCreate = [] } = {}) {
     const parts = url.pathname.split('/').filter(Boolean);
     const method = request.method;
     log.push({ method, path: url.pathname, query: Object.fromEntries(url.searchParams) });
+
+    if (parts[0] === 'items' && parts[1] in singletons && method === 'GET' && !parts[2]) {
+      return json(200, { data: { id: 1, ...singletons[parts[1]] } });
+    }
 
     if (parts[0] === 'items' && parts[1]) {
       const col = parts[1];
@@ -424,10 +431,11 @@ export function setEnv(values) {
     'DIRECTUS_URL', 'DIRECTUS_TOKEN', 'NEXT_PUBLIC_DIRECTUS_URL', 'NEXT_PUBLIC_SITE_URL', 'NEXT_PUBLIC_SHOP_OPEN',
     'NEXT_PUBLIC_SHOP_CURRENCY', 'GELATO_API_KEY', 'PAYMENT_GATEWAY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET',
     'QIKINK_CLIENT_ID', 'QIKINK_CLIENT_SECRET', 'QIKINK_BASE_URL', 'MS_TENANT_ID', 'MS_CLIENT_ID', 'MS_CLIENT_SECRET', 'MAIL_FROM', 'RESEND_API_KEY',
-    'TEAM_NOTIFY_EMAIL', 'CRON_SECRET', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE', 'SMTP_USER', 'SMTP_PASSWORD',
+    'TEAM_NOTIFY_EMAIL', 'CRON_SECRET', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE', 'SMTP_USER', 'SMTP_PASSWORD', 'SITE_INDEXABLE',
   ];
   for (const k of keys) delete process.env[k];
-  Object.assign(process.env, { DIRECTUS_URL, DIRECTUS_TOKEN: 'site-token', ...values });
+  // Like every real server, a test always has a site address (NEXT_PUBLIC_SITE_URL is required).
+  Object.assign(process.env, { DIRECTUS_URL, DIRECTUS_TOKEN: 'site-token', NEXT_PUBLIC_SITE_URL: 'https://stage.antisocialtalks.com', ...values });
 }
 
 export const SHOP_ENV = {

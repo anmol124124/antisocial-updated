@@ -11,6 +11,7 @@ import { RegistrationForm } from '@/components/chapters/RegistrationForm';
 import { EventPeople } from '@/components/chapters/EventPeople';
 import { eventProfiles, eventSlug, getEventByInviteCode } from '@/lib/content';
 import { TBA, eventPeople, eventPlace, eventWhen, statement, statusOf, textLines } from '@/lib/chapters';
+import { contactEmailFor } from '@/lib/site-content';
 
 export const revalidate = 60;
 
@@ -64,7 +65,7 @@ export default async function InvitePage({ params }: { params: Promise<{ code: s
   const people = eventPeople(event.people, await eventProfiles(event.people));
   const poster = assetUrl(event.image, { width: 1000, height: 1000 });
   const paragraphs = (event.description || '').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
-  const contact = event.contact_email || 'admin@antisocialtalks.com';
+  const contact = await contactEmailFor(event);
 
   const facts: [string, string][] = [
     ['Date', when?.date || TBA],

@@ -3,7 +3,7 @@ import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 import { SocialIcon, SocialIconLink } from '@/components/ui/SocialIcons';
-import { SOCIAL_LINKS } from '@/components/site/nav';
+import type { Picture, SocialLink } from '@/lib/site-content';
 
 /**
  * The original static site's hero, brought back: a black-and-white portrait
@@ -12,10 +12,9 @@ import { SOCIAL_LINKS } from '@/components/site/nav';
  * said!!" handwritten on the photo. On phones and tablets the
  * portrait drops below the copy instead.
  *
- * The portrait is a fixed brand asset in public/images, not CMS content.
+ * The portrait, the social links and the scrolling topics come from the CMS
+ * (Home page and Site settings); without a portrait the black stays plain.
  */
-const HERO_IMAGE = '/images/hero-portrait.jpg';
-const HERO_ALT = 'Black-and-white portrait of a woman looking into the distance';
 
 // Same fades as the original site, in the brand black (#0b0b0c).
 const DESKTOP_FADE =
@@ -34,7 +33,7 @@ function PhotoLine({ className = '' }: { className?: string }) {
   );
 }
 
-export function Hero() {
+export function Hero({ image, social, topics }: { image: Picture | null; social: SocialLink[]; topics: string[] }) {
   return (
     <section
       aria-labelledby="hero-title"
@@ -42,7 +41,7 @@ export function Hero() {
     >
       {/* Desktop: the portrait fills everything right of 40%, behind the copy. */}
       <div className="pointer-events-none absolute inset-y-0 left-[40%] right-0 hidden lg:block">
-        <Image src={HERO_IMAGE} alt={HERO_ALT} fill priority sizes="60vw" className="object-cover" />
+        {image && <Image src={image.src} alt={image.alt} fill priority sizes="60vw" className="object-cover" />}
         <div aria-hidden className="absolute inset-0" style={{ background: DESKTOP_FADE }} />
         <PhotoLine className="absolute right-[clamp(20px,6vw,90px)] top-1/2 -translate-y-[40%] -rotate-6 text-[clamp(2rem,3.4vw,2.875rem)]" />
       </div>
@@ -107,7 +106,7 @@ export function Hero() {
                   Start a Chapter
                 </Button>
                 <div className="flex flex-wrap gap-3">
-                  {SOCIAL_LINKS.map((s) => (
+                  {social.map((s) => (
                     <SocialIconLink key={s.key} href={s.href} label={`AntiSocialTalks on ${s.label}`}>
                       <SocialIcon name={s.key} className="h-[1.125rem] w-[1.125rem]" />
                     </SocialIconLink>
@@ -121,38 +120,21 @@ export function Hero() {
 
       {/* Phones and tablets: the portrait sits under the copy, edge to edge. */}
       <div className="relative aspect-[1/1.05] max-h-[32rem] w-full lg:hidden">
-        <Image
-          src={HERO_IMAGE}
-          alt={HERO_ALT}
-          fill
-          sizes="100vw"
-          className="object-cover object-top"
-        />
+        {image && <Image src={image.src} alt={image.alt} fill sizes="100vw" className="object-cover object-top" />}
         <div aria-hidden className="absolute inset-0" style={{ background: MOBILE_FADE }} />
         <PhotoLine className="absolute bottom-7 right-5 -rotate-[5deg] text-[clamp(1.75rem,8vw,2.375rem)] sm:right-8" />
       </div>
 
-      <TopicMarquee />
+      <TopicMarquee words={topics} />
     </section>
   );
 }
 
-const MARQUEE_WORDS = [
-  'Human',
-  'Health',
-  'Science',
-  'Technology',
-  'Business',
-  'Society',
-  'The Future',
-  'Identity',
-  'Money',
-  'Belief',
-];
 
 /** Thin scrolling band of the things we talk about, closing off the hero. */
-function TopicMarquee() {
-  const words = [...MARQUEE_WORDS, ...MARQUEE_WORDS];
+function TopicMarquee({ words: list }: { words: string[] }) {
+  if (!list.length) return null;
+  const words = [...list, ...list];
   return (
     <div className="relative z-10 overflow-hidden border-y border-white/10 bg-white/[0.03] py-3.5">
       <div className="flex w-max animate-marquee items-center gap-10 motion-reduce:animate-none">
@@ -161,9 +143,9 @@ function TopicMarquee() {
             key={`${word}-${i}`}
             // The second copy exists only so the loop has no seam: screen
             // readers skip it, and with reduced motion it isn't shown at all.
-            aria-hidden={i >= MARQUEE_WORDS.length || undefined}
+            aria-hidden={i >= list.length || undefined}
             className={`flex shrink-0 items-center gap-10 text-[0.6875rem] font-semibold uppercase tracking-[0.28em] text-white/35 ${
-              i >= MARQUEE_WORDS.length ? 'motion-reduce:hidden' : ''
+              i >= list.length ? 'motion-reduce:hidden' : ''
             }`}
           >
             {word}

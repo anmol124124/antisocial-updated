@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Container } from '@/components/ui/Container';
 import { Eyebrow } from '@/components/ui/Eyebrow';
 import { Reveal } from '@/components/ui/Reveal';
-import { CHAPTER_GUIDES, JOIN_ACTIONS } from '@/lib/chapter-content';
+import { getChapterGuide } from '@/lib/site-content';
 
 /**
  * Building blocks shared by the Chapters pages, so the hub, the guides and
@@ -122,11 +122,13 @@ export function Note({ children, tone = 'light' }: { children: ReactNode; tone?:
  * The four ways in, closing every Chapters page. Start a Chapter is the
  * primary action, so it gets the dark card.
  */
-export function JoinActions({ title = 'Be part of it.', lede }: { title?: string; lede?: string }) {
+export async function JoinActions({ title = 'Be part of it.', lede }: { title?: string; lede?: string }) {
+  const { joinActions } = await getChapterGuide();
+  if (!joinActions.length) return null;
   return (
     <Band tone="sand" eyebrow="Get Involved" title={title} lede={lede}>
       <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {JOIN_ACTIONS.map((action, i) => {
+        {joinActions.map((action, i) => {
           const primary = i === 0;
           return (
             <li key={action.href}>
@@ -159,8 +161,8 @@ export function JoinActions({ title = 'Be part of it.', lede }: { title?: string
 }
 
 /** Links to the other guide pages; the current one is left out. */
-export function GuideLinks({ current }: { current?: string }) {
-  const guides = CHAPTER_GUIDES.filter((g) => g.href !== current);
+export async function GuideLinks({ current }: { current?: string }) {
+  const guides = (await getChapterGuide()).guides.filter((g) => g.href !== current);
   return (
     <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {guides.map((g) => (

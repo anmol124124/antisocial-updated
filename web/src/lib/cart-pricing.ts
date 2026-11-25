@@ -180,7 +180,7 @@ export const INDIA_DELIVERY: ShippingOption = {
   name: 'Standard delivery',
   shipmentMethodUid: 'qikink-standard',
   price: 0,
-  currency: 'INR',
+  currency: MARKETS.IN.currency,
   minDeliveryDays: 4,
   maxDeliveryDays: 8,
 };

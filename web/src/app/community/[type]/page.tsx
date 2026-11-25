@@ -6,10 +6,11 @@ import { Container } from '@/components/ui/Container';
 import { Eyebrow } from '@/components/ui/Eyebrow';
 import { Reveal } from '@/components/ui/Reveal';
 import { SubmissionForm } from '@/components/forms/SubmissionForm';
-import { WAYS, wayBySlug } from '@/lib/community';
+import { COMMUNITY_FORMS } from '@/lib/community';
+import { getCommunityWays } from '@/lib/site-content';
 
 export function generateStaticParams() {
-  return WAYS.map((w) => ({ type: w.slug }));
+  return COMMUNITY_FORMS.map((type) => ({ type }));
 }
 
 export async function generateMetadata({
@@ -18,7 +19,7 @@ export async function generateMetadata({
   params: Promise<{ type: string }>;
 }): Promise<Metadata> {
   const { type } = await params;
-  const way = wayBySlug(type);
+  const way = (await getCommunityWays()).find((w) => w.slug === type);
   if (!way) return { title: 'Not found' };
   return {
     title: way.title,
@@ -33,10 +34,11 @@ export default async function CommunityFormPage({
   params: Promise<{ type: string }>;
 }) {
   const { type } = await params;
-  const way = wayBySlug(type);
+  const ways = await getCommunityWays();
+  const way = ways.find((w) => w.slug === type);
   if (!way) notFound();
 
-  const others = WAYS.filter((w) => w.slug !== way.slug);
+  const others = ways.filter((w) => w.slug !== way.slug);
 
   return (
     <>

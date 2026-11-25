@@ -1,6 +1,6 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
-import { siteUrl } from './env';
+import { siteHost, siteUrl } from './env';
 import { eventPlace, eventWhen, textLines } from './chapters';
 import { eventSlug, type ChapterEvent } from './content';
 import type { Mail } from './mailer';
@@ -86,7 +86,7 @@ export function calendarFile(event: ChapterEvent): string | null {
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:event-${event.id}-${eventSlug(event)}@antisocialtalks.com`,
+    `UID:event-${event.id}-${eventSlug(event)}@${siteHost()}`,
     `DTSTAMP:${utcStamp(new Date())}`,
     ...when,
     `SUMMARY:${icsText(event.title)}`,
@@ -99,13 +99,12 @@ export function calendarFile(event: ChapterEvent): string | null {
   return lines.map(fold).join('\r\n') + '\r\n';
 }
 
-/** The invitation email for one guest who accepted. */
-export function invitationMail(event: ChapterEvent, guest: { name: string; email: string }): Mail {
+/** The invitation email for one guest who accepted. `contact`: who they can write to (contactEmailFor). */
+export function invitationMail(event: ChapterEvent, guest: { name: string; email: string }, contact: string): Mail {
   const when = eventWhen(event);
   const place = eventPlace(event);
   const venue = event.invite_venue?.trim() || null;
   const note = textLines(event.invite_message);
-  const contact = event.contact_email || 'admin@antisocialtalks.com';
   const link = `${siteUrl()}/events/${eventSlug(event)}`;
   const calendar = calendarFile(event);
   const first = guest.name.trim().split(/\s+/)[0] || guest.name;

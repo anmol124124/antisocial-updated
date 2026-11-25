@@ -4,8 +4,7 @@ import type { RemotePattern } from 'next/dist/shared/lib/image-config';
 /**
  * Directus serves every uploaded image, so its host has to be allow-listed for
  * next/image. The protocol and port are taken from the configured URL rather
- * than hardcoded, so the same config works for local http://localhost:8055 and
- * for production https://cms.antisocialtalks.com.
+ * than hardcoded, so the same config works for a local and a live CMS.
  */
 function directusPattern(): RemotePattern | null {
   const raw = process.env.NEXT_PUBLIC_DIRECTUS_URL || process.env.DIRECTUS_URL;
@@ -53,10 +52,9 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
+      // CMS pictures normally come through this app's own /api/assets proxy (no host needed);
+      // this allows direct Directus URLs too, for whichever CMS the env points at.
       directusPattern(),
-      // Local Directus, so images keep working even if the env var is unset.
-      { protocol: 'http', hostname: 'localhost', port: '8055', pathname: '/assets/**' },
-      { protocol: 'https', hostname: 'cms.antisocialtalks.com', pathname: '/assets/**' },
       { protocol: 'https', hostname: '**.gelatoapis.com' },
       { protocol: 'https', hostname: 'gelato-api-live.s3.eu-west-1.amazonaws.com' },
       { protocol: 'https', hostname: 'i.ytimg.com' },

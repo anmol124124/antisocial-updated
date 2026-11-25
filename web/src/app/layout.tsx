@@ -5,18 +5,8 @@ import { Header } from '@/components/site/Header';
 import { Footer } from '@/components/site/Footer';
 import { CartProvider } from '@/components/shop/CartProvider';
 import { MarketProvider } from '@/components/shop/MarketProvider';
-import { siteUrl } from '@/lib/env';
+import { isIndexable, siteUrl } from '@/lib/env';
 import { SHARE_IMAGE } from '@/lib/meta';
-
-/** Only the real domain gets indexed; every stage copy is noindex. */
-function isProductionHost(): boolean {
-  try {
-    const host = new URL(siteUrl()).hostname;
-    return host === 'antisocialtalks.com' || host === 'www.antisocialtalks.com';
-  } catch {
-    return false;
-  }
-}
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -33,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: { type: 'website', siteName: 'AntiSocialTalks', locale: 'en', images: [SHARE_IMAGE] },
   twitter: { card: 'summary_large_image' },
   // Belt and braces with robots.ts: a stage deploy also sends a meta noindex.
-  robots: isProductionHost()
+  robots: isIndexable()
     ? undefined
     : { index: false, follow: false, nocache: true },
 };

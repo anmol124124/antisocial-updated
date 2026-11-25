@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { PageHero } from '@/components/site/PageHero';
 import { Button } from '@/components/ui/Button';
 import { Band, Cards, GuideLinks, JoinActions, Note } from '@/components/chapters/Blocks';
-import { FIRST_30_DAYS, FIRST_30_DAYS_NOTE } from '@/lib/chapter-content';
+import { getChapterGuide } from '@/lib/site-content';
 
 export const metadata: Metadata = {
   title: 'How to Start Your Chapter',
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/chapters/how-to-start' },
 };
 
-export default function HowToStartPage() {
+export default async function HowToStartPage() {
+  const guide = await getChapterGuide();
   return (
     <>
       <PageHero
@@ -30,8 +31,8 @@ export default function HowToStartPage() {
       </PageHero>
 
       <Band eyebrow="Your First 30 Days" title="Six steps, five days each.">
-        <Cards cols={3} items={FIRST_30_DAYS.map((d) => ({ label: d.days, title: d.title, body: d.body }))} />
-        <Note>{FIRST_30_DAYS_NOTE}</Note>
+        <Cards cols={3} items={guide.first30Days.map((d) => ({ label: d.days, title: d.title, body: d.body }))} />
+        <Note>{guide.first30DaysNote}</Note>
       </Band>
 
       <Band tone="sand" eyebrow="Guides" title="What comes next.">

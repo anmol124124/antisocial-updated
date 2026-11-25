@@ -3,7 +3,7 @@ import { PageHero } from '@/components/site/PageHero';
 import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 import { Band, GuideLinks, JoinActions, Note } from '@/components/chapters/Blocks';
-import { SPEAKER_QUALITIES, TALENT_SOURCES } from '@/lib/chapter-content';
+import { getChapterGuide } from '@/lib/site-content';
 
 export const metadata: Metadata = {
   title: 'Discover Talent',
@@ -22,7 +22,8 @@ const NOMINATION_FIELDS = [
   'Contact details and consent to be contacted',
 ];
 
-export default function DiscoverTalentPage() {
+export default async function DiscoverTalentPage() {
+  const guide = await getChapterGuide();
   return (
     <>
       <PageHero
@@ -43,9 +44,9 @@ export default function DiscoverTalentPage() {
           <Reveal>
             <div className="h-full rounded-[1.5rem] bg-white p-8 shadow-sm ring-1 ring-ink/[0.06]">
               <h2 className="text-xl font-bold tracking-tight">Where chapters look</h2>
-              <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-mute">{TALENT_SOURCES}</p>
+              <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-mute">{guide.talentSources}</p>
               <h2 className="mt-8 text-xl font-bold tracking-tight">What makes a speaker</h2>
-              <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-mute">{SPEAKER_QUALITIES}</p>
+              <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-mute">{guide.speakerQualities}</p>
             </div>
           </Reveal>
           <Reveal delay={80}>

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
-/** The share card a link shows when its page has no picture of its own (public/og-image.jpg). */
+/** The share card a link shows when its page has no picture of its own. The picture is chosen in the CMS (Site settings); see app/api/share-image. */
 export const SHARE_IMAGE = {
-  url: '/og-image.jpg',
+  url: '/api/share-image',
   width: 1200,
   height: 630,
   alt: 'AntiSocialTalks: They called us AntiSocial. We decided to talk.',

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Reveal } from '@/components/ui/Reveal';
 import { EpisodeCard } from '@/components/episodes/EpisodeCard';
-import { YOUTUBE_URL } from '@/components/site/nav';
+import { getSiteSettings, youtubeChannel } from '@/lib/site-content';
 import { getEpisodes, getGuests, getTopics, guestsOf, slugify, topicSlugsOf } from '@/lib/content';
 
 export const revalidate = 60;
@@ -25,7 +25,8 @@ export default async function EpisodesPage({
   searchParams: Promise<{ topic?: string }>;
 }) {
   const { topic: topicFilter } = await searchParams;
-  const [episodes, allTopics, voices] = await Promise.all([getEpisodes(), getTopics(), getGuests(200)]);
+  const [episodes, allTopics, voices, settings] = await Promise.all([getEpisodes(), getTopics(), getGuests(200), getSiteSettings()]);
+  const youtube = youtubeChannel(settings);
   // Only topics with at least one episode get a filter: none leads to an empty list.
   const used = topicSlugsOf(episodes);
   const topics = allTopics.filter((t) => used.has(t.slug || slugify(t.title)));
@@ -51,9 +52,11 @@ export default async function EpisodesPage({
         accent="start to finish."
         lede="Every episode goes up on YouTube first. Subscribe there and you will get each one the day it comes out."
       >
-        <Button href={YOUTUBE_URL} external variant="solid-light" arrow>
-          Subscribe on YouTube
-        </Button>
+        {youtube && (
+          <Button href={youtube} external variant="solid-light" arrow>
+            Subscribe on YouTube
+          </Button>
+        )}
       </PageHero>
 
       <section className="bg-cream py-14 lg:py-20">
@@ -100,11 +103,11 @@ export default async function EpisodesPage({
                   <Button href="/episodes" variant="outline-dark">
                     Clear filter
                   </Button>
-                ) : (
-                  <Button href={YOUTUBE_URL} external variant="outline-dark" arrow>
+                ) : youtube ? (
+                  <Button href={youtube} external variant="outline-dark" arrow>
                     Subscribe on YouTube
                   </Button>
-                )
+                ) : null
               }
             />
           ) : (

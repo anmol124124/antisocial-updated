@@ -4,11 +4,6 @@ import { Eyebrow } from '@/components/ui/Eyebrow';
 import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 
-/**
- * The ten example topics from the homepage brief (section 06), as the client
- * listed them: names only, no descriptions, and not links into the episodes.
- */
-const TOPICS = ['Human', 'Health', 'Science', 'Technology', 'Business', 'Society', 'The Future', 'Identity', 'Money', 'Belief'];
 
 /**
  * Topics as type, not thumbnails: number and name, set big enough to read.
@@ -16,7 +11,9 @@ const TOPICS = ['Human', 'Health', 'Science', 'Technology', 'Business', 'Society
  * Header runs full width above a 4-column grid, and the last cell is a
  * "suggest a topic" card two columns wide, so ten topics make an even 4×3.
  */
-export function Topics() {
+/** `topics`: the names from the CMS (Home page → Topics), in order. */
+export function Topics({ topics }: { topics: string[] }) {
+  if (!topics.length) return null;
   return (
     <section
       aria-labelledby="topics-title"
@@ -43,7 +40,7 @@ export function Topics() {
 
         <div className="mt-12 lg:mt-16">
           <ul className="grid gap-px overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
-            {TOPICS.map((topic, i) => (
+            {topics.map((topic, i) => (
               <li key={topic} className="bg-ink">
                 <Reveal delay={(i % 4) * 60} className="h-full">
                   <div className="flex h-full min-h-[8.5rem] flex-col justify-between gap-6 p-6 sm:min-h-[13rem] sm:p-7">
@@ -54,7 +51,7 @@ export function Topics() {
               </li>
             ))}
             <li className="bg-ink sm:col-span-2">
-              <Reveal delay={(TOPICS.length % 4) * 60} className="h-full">
+              <Reveal delay={(topics.length % 4) * 60} className="h-full">
                 <Link
                   href="/community/question"
                   className="group flex h-full min-h-[8.5rem] flex-col justify-between gap-6 sm:min-h-[13rem] bg-sand p-6 text-ink sm:p-7 transition-colors duration-500 hover:bg-sand-light"

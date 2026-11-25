@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { assetUrl } from '@/lib/directus';
 import { eventSlug, type ChapterEvent } from '@/lib/content';
 import { TBA, eventPeople, eventWhen, formatPrice, statusOf, textLines, ticketPrice, type Profile } from '@/lib/chapters';
+import { contactEmailFor } from '@/lib/site-content';
 
 /** The button on an event's card, by what the visitor can do. */
 function ctaLabel(status: ReturnType<typeof statusOf>): string {
@@ -30,7 +31,7 @@ function ctaLabel(status: ReturnType<typeof statusOf>): string {
  * first. One that is over, postponed or cancelled says so instead of what
  * guests get.
  */
-export function EventFeature({
+export async function EventFeature({
   event,
   profiles,
   priority = false,
@@ -48,6 +49,7 @@ export function EventFeature({
   const teaser = event.teaser && (event.teaser.label || event.teaser.title || event.teaser.text) ? event.teaser : null;
   const poster = assetUrl(event.image, { width: 1000, height: 1000, fit: 'contain' });
   const dark = Boolean(event.featured);
+  const contact = await contactEmailFor(event);
   const privateEvent = status.mode === 'private';
   const soon = status.mode === 'soon';
   // Postponed, cancelled or over: what guests will get, and how to get in, no longer apply.
@@ -195,7 +197,7 @@ export function EventFeature({
         <div className="mt-auto pt-8">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
             {privateEvent ? (
-              <Button href={`mailto:${event.contact_email || 'admin@antisocialtalks.com'}?subject=${encodeURIComponent(event.title)}`} variant={dark ? 'solid-light' : 'solid-dark'} arrow>
+              <Button href={`mailto:${contact}?subject=${encodeURIComponent(event.title)}`} variant={dark ? 'solid-light' : 'solid-dark'} arrow>
                 Think You Belong in the Room? Write to Us
               </Button>
             ) : soon ? (

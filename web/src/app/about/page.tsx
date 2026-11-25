@@ -8,6 +8,7 @@ import { Media, initials } from '@/components/ui/Media';
 import { Reveal } from '@/components/ui/Reveal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getHosts } from '@/lib/content';
+import { getAboutValues } from '@/lib/site-content';
 import { assetUrl } from '@/lib/directus';
 
 export const revalidate = 60;
@@ -19,27 +20,8 @@ export const metadata: Metadata = {
     'AntiSocialTalks is a global conversation and media platform exploring people, ideas and stories that challenge conventional thinking.',
 };
 
-const VALUES = [
-  {
-    title: 'Better questions',
-    body: 'We look for the question that makes a guest stop and think before they answer.',
-  },
-  {
-    title: 'No easy outs',
-    body: 'We keep the awkward parts of the conversation that most interviews edit out.',
-  },
-  {
-    title: 'Everyone has a voice',
-    body: 'Founders, scientists, artists and athletes, alongside people who have never been interviewed before. What matters is having something to say.',
-  },
-  {
-    title: 'Anti-silence',
-    body: 'We are not against society. We are against keeping quiet about the things that matter.',
-  },
-];
-
 export default async function AboutPage() {
-  const hosts = await getHosts();
+  const [hosts, values] = await Promise.all([getHosts(), getAboutValues()]);
 
   return (
     <>
@@ -64,7 +46,7 @@ export default async function AboutPage() {
           </Reveal>
 
           <ul className="mt-12 grid gap-6 sm:grid-cols-2">
-            {VALUES.map((value, i) => (
+            {values.map((value, i) => (
               <li key={value.title}>
                 <Reveal delay={i * 70}>
                   <div className="h-full rounded-[1.5rem] bg-white p-8 shadow-sm ring-1 ring-ink/[0.06]">

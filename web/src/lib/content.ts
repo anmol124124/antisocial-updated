@@ -48,6 +48,8 @@ export type Guest = {
    * and the thing nobody asks him about." Added 2026-10.
    */
   teaser?: string | null;
+  /** Old addresses (after /voices/) that forward to this guest, e.g. after a spelling fix. */
+  previous_slugs?: string[] | null;
   host: Host | number | null;
   episode: Episode | number | null;
   status: string;

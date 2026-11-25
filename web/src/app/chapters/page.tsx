@@ -7,7 +7,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ChapterCard } from '@/components/live/ChapterCard';
 import { Band, Cards, GuideLinks, JoinActions, Note, Steps } from '@/components/chapters/Blocks';
 import { getChapters } from '@/lib/content';
-import { CHAPTER_ACTIVITIES, CHAPTER_FRAMEWORK, FOUNDER_QUESTIONS, FOUNDER_STEPS, FOUNDER_STEPS_NOTE, NETWORK } from '@/lib/chapter-content';
+import { getChapterGuide } from '@/lib/site-content';
 
 export const revalidate = 60;
 
@@ -22,11 +22,11 @@ export const metadata: Metadata = {
  * start one, and the guides. In-person events are on /events.
  */
 export default async function ChaptersPage() {
-  const chapters = await getChapters();
+  const [guide, chapters] = await Promise.all([getChapterGuide(), getChapters()]);
 
   return (
     <>
-      <PageHero eyebrow="Chapters Around the World" title="Each chapter is AntiSocialTalks in one place," accent="with local voices and local stories." lede={NETWORK}>
+      <PageHero eyebrow="Chapters Around the World" title="Each chapter is AntiSocialTalks in one place," accent="with local voices and local stories." lede={guide.network}>
         <div className="flex flex-wrap gap-3">
           <Button href="/chapters/start" variant="solid-light" arrow>
             Start a Chapter
@@ -38,8 +38,8 @@ export default async function ChaptersPage() {
       </PageHero>
 
       <Band eyebrow="What a Chapter Does" title="Five things every chapter does.">
-        <Cards items={CHAPTER_ACTIVITIES} cols={5} />
-        <Note>{CHAPTER_FRAMEWORK}</Note>
+        <Cards items={guide.activities} cols={5} />
+        <Note>{guide.framework}</Note>
       </Band>
 
       <Band id="chapters" tone="sand" eyebrow="Our Chapters" title="Pick your city." lede="Dubai, the USA and India come first. Any city can apply to start a chapter.">
@@ -71,9 +71,9 @@ export default async function ChaptersPage() {
       </Band>
 
       <Band tone="dark" eyebrow="How Someone Starts a Chapter" title="Five questions to apply." accent="Six steps to launch.">
-        <Cards tone="dark" cols={5} items={FOUNDER_QUESTIONS.map((q) => ({ label: q.label, title: q.body }))} />
-        <Steps steps={FOUNDER_STEPS} tone="dark" />
-        <Note tone="dark">{FOUNDER_STEPS_NOTE}</Note>
+        <Cards tone="dark" cols={5} items={guide.founderQuestions.map((q) => ({ label: q.label, title: q.body }))} />
+        <Steps steps={guide.founderSteps} tone="dark" />
+        <Note tone="dark">{guide.founderStepsNote}</Note>
         <Reveal delay={140}>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button href="/chapters/start" variant="solid-light" arrow>

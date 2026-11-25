@@ -13,15 +13,6 @@ import { getGuestBySlug, getGuests, slugify } from '@/lib/content';
 
 export const revalidate = 60;
 
-/**
- * A voice's address comes from their name, so fixing a spelling moves the
- * page. The old address forwards to the new one once the CMS has the new name
- * (and keeps working until then).
- */
-const RENAMED: Record<string, string> = {
-  'reem-elkott': 'reem-elkot', // "Reem Elkot", as on YouTube (18 Nov 2026)
-};
-
 export async function generateStaticParams() {
   const guests = await getGuests(200);
   return guests.map((g) => ({ slug: slugify(g.name) }));
@@ -47,8 +38,10 @@ export default async function GuestPage({ params }: { params: Promise<{ slug: st
   const [guest, all] = await Promise.all([getGuestBySlug(slug), getGuests(200)]);
 
   if (!guest) {
-    const renamed = RENAMED[slug];
-    if (renamed && all.some((g) => slugify(g.name) === renamed)) permanentRedirect(`/voices/${renamed}`);
+    // A voice's address comes from their name, so fixing a spelling moves the page. The old
+    // address is kept on the guest in the CMS ("Previous web addresses") and forwards here.
+    const moved = all.find((g) => g.previous_slugs?.includes(slug));
+    if (moved) permanentRedirect(`/voices/${slugify(moved.name)}`);
     notFound();
   }
 

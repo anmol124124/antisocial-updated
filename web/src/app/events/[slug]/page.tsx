@@ -13,6 +13,7 @@ import { RegistrationForm } from '@/components/chapters/RegistrationForm';
 import { EventPeople } from '@/components/chapters/EventPeople';
 import { eventProfiles, eventSlug, getEventBySlug, getEvents } from '@/lib/content';
 import { TBA, eventPeople, eventPlace, eventWhen, formatPrice, statement, statusOf, textLines, ticketPrice } from '@/lib/chapters';
+import { contactEmailFor } from '@/lib/site-content';
 
 export const revalidate = 60;
 
@@ -87,7 +88,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   // Over (by its status or its date): no form, no secret guest, only the way to hear about the next one.
   const past = event.status === 'completed';
   const venue = soon ? null : event.venue_name;
-  const contact = event.contact_email || 'admin@antisocialtalks.com';
+  const contact = await contactEmailFor(event);
   // A blank line in the CMS starts a new paragraph; with more than one, the first is the lead, set large.
   const paragraphs = (event.description || '').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
   const lead = paragraphs.length > 1 ? paragraphs[0] : null;

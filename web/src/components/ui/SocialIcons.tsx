@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { SocialKey } from '@/components/site/nav';
+import type { SocialKey } from '@/lib/site-content';
 
 export function InstagramIcon({ className = 'h-4 w-4' }: { className?: string }) {
   return (

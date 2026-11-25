@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { PageHero } from '@/components/site/PageHero';
 import { Button } from '@/components/ui/Button';
 import { Band, Cards, GuideLinks, JoinActions, Note, Steps } from '@/components/chapters/Blocks';
-import { CHAPTER_ACTIVITIES, CHAPTER_FRAMEWORK, FOUNDER_STEPS, FOUNDER_STEPS_NOTE, VISION } from '@/lib/chapter-content';
+import { getChapterGuide } from '@/lib/site-content';
 
 export const metadata: Metadata = {
   title: 'Become a Chapter Leader',
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/chapters/become-a-leader' },
 };
 
-export default function BecomeLeaderPage() {
+export default async function BecomeLeaderPage() {
+  const guide = await getChapterGuide();
   return (
     <>
       <PageHero
@@ -29,8 +30,8 @@ export default function BecomeLeaderPage() {
         </div>
       </PageHero>
 
-      <Band eyebrow="What Chapter Leaders Do" title="You run the chapter’s programme." lede={VISION}>
-        <Cards items={CHAPTER_ACTIVITIES} cols={5} />
+      <Band eyebrow="What Chapter Leaders Do" title="You run the chapter’s programme." lede={guide.vision}>
+        <Cards items={guide.activities} cols={5} />
       </Band>
 
       <Band tone="sand" eyebrow="What the Global Team Provides" title="You’re not doing it alone.">
@@ -43,12 +44,12 @@ export default function BecomeLeaderPage() {
             { title: 'Onboarding', body: 'A founder orientation, then support through your launch plan.' },
           ]}
         />
-        <Note>{CHAPTER_FRAMEWORK}</Note>
+        <Note>{guide.framework}</Note>
       </Band>
 
       <Band tone="dark" eyebrow="From Application to Launch" title="Six steps.">
-        <Steps steps={FOUNDER_STEPS} tone="dark" />
-        <Note tone="dark">{FOUNDER_STEPS_NOTE}</Note>
+        <Steps steps={guide.founderSteps} tone="dark" />
+        <Note tone="dark">{guide.founderStepsNote}</Note>
       </Band>
 
       <Band eyebrow="Guides" title="Read before you apply.">

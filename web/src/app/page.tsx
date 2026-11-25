@@ -9,6 +9,7 @@ import { FinalCta } from '@/components/home/FinalCta';
 import { featuredOf, getEpisodes, getGuests, getHomeGuests, guestsOf } from '@/lib/content';
 import type { Metadata } from 'next';
 import { pageLinks } from '@/lib/meta';
+import { getHomePage, getHomePillars, getSiteSettings, youtubeChannel } from '@/lib/site-content';
 
 export const revalidate = 60;
 
@@ -25,18 +26,25 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   // One round of reads for the whole page, in parallel.
-  const [episodes, guests, voices] = await Promise.all([getEpisodes(), getHomeGuests(3), getGuests(200)]);
+  const [episodes, guests, voices, home, pillars, settings] = await Promise.all([
+    getEpisodes(),
+    getHomeGuests(3),
+    getGuests(200),
+    getHomePage(),
+    getHomePillars(),
+    getSiteSettings(),
+  ]);
   const episode = featuredOf(episodes);
 
   return (
     <>
-      <Hero />
-      <FeaturedEpisode episode={episode} guests={guestsOf(episode, voices)} />
+      <Hero image={home.hero} social={settings.social} topics={home.topics} />
+      <FeaturedEpisode episode={episode} guests={guestsOf(episode, voices)} youtube={youtubeChannel(settings)} teaser={home.teaser} />
       <GuestsPreview guests={guests} />
       <ChaptersFeature />
-      <TheQuestion />
-      <Topics />
-      <Pillars />
+      <TheQuestion image={home.question} />
+      <Topics topics={home.topics} />
+      <Pillars pillars={pillars} />
       <FinalCta />
     </>
   );

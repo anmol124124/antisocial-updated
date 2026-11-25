@@ -2,47 +2,21 @@ import Link from 'next/link';
 import { Container } from '@/components/ui/Container';
 import { Media } from '@/components/ui/Media';
 import { Reveal } from '@/components/ui/Reveal';
+import type { HomePillar } from '@/lib/site-content';
 
-const PILLARS = [
-  {
-    href: '/stories',
-    title: 'AntiSocial Stories',
-    blurb: 'Stories from people who rarely get asked.',
-    cta: 'Explore Stories',
-    image: '/images/pillar-stories.jpg',
-    alt: 'A woman smiling mid-conversation across a podcast microphone',
-  },
-  {
-    href: '/events',
-    title: 'AntiSocial Events',
-    blurb: 'Socially Unfiltered.',
-    cta: 'Explore Events',
-    image: '/images/pillar-events.png',
-    alt: 'The AntiSocialTalks crew talking by their cars at sunset, behind an AntiSocialTalks banner',
-    // Wide photo: keep the banner and the interview in the square crop.
-    position: '31% 50%',
-  },
-  {
-    href: '/shop',
-    title: 'The AntiSocial Shop',
-    blurb: 'Wear the conversation.',
-    cta: 'Shop the Drop',
-    image: '/images/pillar-shop-drop.jpg',
-    alt: 'Two models in black AntiSocialTalks merch: the “Not anti-opinion. Anti-bulls*it.” tee and the “They called us antisocial. We decided to talk.” hoodie',
-  },
-];
 
 /**
  * Stories, Events and the Shop, as equal-weight entry points (Chapters has its
  * own section above, with the map). Images are square to match the source
  * files, so the shirt collar is never cropped.
  */
-export function Pillars() {
+export function Pillars({ pillars }: { pillars: HomePillar[] }) {
+  if (!pillars.length) return null;
   return (
     <section aria-label="Explore AntiSocialTalks" className="bg-cream py-20 lg:py-28">
       <Container>
         <ul className="grid gap-5 sm:grid-cols-3">
-          {PILLARS.map((pillar, i) => (
+          {pillars.map((pillar, i) => (
             <li key={pillar.href}>
               <Reveal delay={i * 70} className="h-full">
                 <Link
@@ -53,7 +27,7 @@ export function Pillars() {
                     src={pillar.image}
                     alt={pillar.alt}
                     tone={i}
-                    position={'position' in pillar ? pillar.position : undefined}
+                    position={pillar.position}
                     sizes="(max-width: 640px) 100vw, 33vw"
                     className="aspect-square w-full"
                   />

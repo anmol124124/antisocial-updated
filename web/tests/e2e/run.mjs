@@ -280,12 +280,15 @@ async function runChecks(mode, cms) {
 
     const home = html('/');
     expect(/<meta property="og:title" content="They called us AntiSocial\. We decided to talk\."/.test(home), 'the home page share card lost its line');
-    expect(/<meta property="og:image" content="[^"]*\/og-image\.jpg"/.test(home), 'the home page share card has no picture');
+    expect(/<meta property="og:image" content="[^"]*\/api\/share-image"/.test(home), 'the home page share card has no picture');
+    // The default share picture is chosen in the CMS (Site settings) and served from one address.
+    const card = await get('/api/share-image');
+    expect(card.status === 200 && /^image\//.test(card.type || ''), `the default share picture does not load: ${card.status} ${card.type}`);
     expect(/<meta property="og:image" content="[^"]*\/api\/assets\/[^"]*format=jpg/.test(html('/shop/tee-anti-bullshit')), 'a shared product should show its own photo');
     expect(new RegExp(`<meta property="og:image" content="[^"]*${FILES.mockup}[^"]*format=jpg`).test(html('/voices/abdu-rozik')), 'a shared voice should show their photo');
     expect(/<link rel="icon" href="\/favicon\.ico/.test(home) && /<link rel="icon" href="\/icon\.png/.test(home) && /<link rel="apple-touch-icon" href="\/apple-icon\.png/.test(home), 'the page does not link its icons');
     expect(/<link rel="manifest" href="\/manifest\.webmanifest"/.test(home) && /<meta name="theme-color" content="#0b0b0c"/.test(home), 'no manifest or theme colour');
-    for (const [path, type] of [['/favicon.ico', 'image/x-icon'], ['/icon.png', 'image/png'], ['/apple-icon.png', 'image/png'], ['/og-image.jpg', 'image/jpeg'], ['/icon-192.png', 'image/png'], ['/manifest.webmanifest', 'application/manifest+json']]) {
+    for (const [path, type] of [['/favicon.ico', 'image/x-icon'], ['/icon.png', 'image/png'], ['/apple-icon.png', 'image/png'], ['/icon-192.png', 'image/png'], ['/manifest.webmanifest', 'application/manifest+json']]) {
       const r = await get(path);
       expect(r.status === 200 && r.type.includes(type), `${path}: ${r.status} ${r.type}`);
     }
@@ -333,7 +336,8 @@ async function runChecks(mode, cms) {
     // Hero: the portrait and headline as before, the client's introduction, Listen Now and Start a Chapter (to /chapters).
     const hero = sectionOf(0);
     expect(/They called\s+us\s+AntiSocial\.\s+We decided to\s+talk\./.test(textOf(hero)) && textOf(hero).includes('Not anti-society. Anti-silence.'), 'the hero lines are missing');
-    expect(hero.includes('hero-portrait'), 'the hero portrait is missing');
+    // next/image puts the CMS address inside its own (URL-encoded) one.
+    expect(hero.includes(encodeURIComponent(`/api/assets/${FILES.photo}`)), 'the hero portrait (Home page → Hero image in the CMS) is missing');
     for (const s of ['AntiSocial Talks is a global conversation and media platform', 'for honest conversations about the issues', 'beyond the screen and into communities around the world.']) {
       expect(textOf(hero).includes(s), `hero introduction: missing “${s}”`);
     }

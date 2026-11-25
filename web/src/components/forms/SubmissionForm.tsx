@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { Honeypot } from '@/components/chapters/FormField';
 import { postApi } from '@/lib/api-client';
+import type { SubmissionType } from '@/lib/community';
 
-export type SubmissionType = 'story' | 'question' | 'speaker' | 'community' | 'partner';
+export type { SubmissionType };
 
 const field =
   'w-full rounded-2xl border border-ink/15 bg-white px-4 py-3 text-sm text-ink placeholder:text-ink-mute/50 transition focus:border-sand focus:outline-none focus:ring-2 focus:ring-sand/25';

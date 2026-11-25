@@ -15,14 +15,12 @@ export type DirectusError = { collection: string; message: string };
 
 const revalidateSeconds = 60;
 
-async function readItems<T>(
-  collection: string,
-  query: Record<string, string | number | undefined> = {},
-): Promise<T[]> {
+/** GET /items/<collection> with the site token, cached for `revalidateSeconds`. Null on any failure. */
+async function readData<T>(collection: string, query: Record<string, string | number | undefined>): Promise<T | null> {
   const base = directusUrl();
   if (!base) {
     warnOnce(collection, 'DIRECTUS_URL is not set in .env.local');
-    return [];
+    return null;
   }
 
   const params = new URLSearchParams();
@@ -41,15 +39,32 @@ async function readItems<T>(
 
     if (!res.ok) {
       warnOnce(collection, `${res.status} ${res.statusText}`);
-      return [];
+      return null;
     }
 
-    const body = (await res.json()) as { data?: T[] };
-    return Array.isArray(body.data) ? body.data : [];
+    const body = (await res.json()) as { data?: T };
+    return body.data ?? null;
   } catch (err) {
     warnOnce(collection, err instanceof Error ? err.message : String(err));
-    return [];
+    return null;
   }
+}
+
+async function readItems<T>(
+  collection: string,
+  query: Record<string, string | number | undefined> = {},
+): Promise<T[]> {
+  const data = await readData<T[]>(collection, query);
+  return Array.isArray(data) ? data : [];
+}
+
+/** A singleton collection (one record, e.g. site_settings). Null when unreadable or never filled in. */
+async function readSingleton<T>(
+  collection: string,
+  query: Record<string, string | number | undefined> = {},
+): Promise<T | null> {
+  const data = await readData<T>(collection, query);
+  return data && typeof data === 'object' && !Array.isArray(data) ? data : null;
 }
 
 const warned = new Set<string>();
@@ -142,7 +157,7 @@ export async function uploadFile(file: File, title: string): Promise<string> {
   return body.data.id;
 }
 
-export { readItems };
+export { readItems, readSingleton };
 
 /* ───────────── server-side records (orders, bookings) ───────────── */
 

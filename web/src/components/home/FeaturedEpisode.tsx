@@ -4,10 +4,9 @@ import { Eyebrow } from '@/components/ui/Eyebrow';
 import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { YOUTUBE_URL } from '@/components/site/nav';
 import { slugify, youtubeId, type Episode } from '@/lib/content';
 import { EpisodePlayer } from '@/components/episodes/EpisodePlayer';
-import { TEASER } from '@/lib/teaser';
+import type { Teaser } from '@/lib/site-content';
 import { Countdown } from '@/components/episodes/Countdown';
 
 /**
@@ -54,7 +53,19 @@ function KnockKnock() {
     </div>
   );
 }
-export function FeaturedEpisode({ episode, guests = [] }: { episode: Episode | null; guests?: string[] }) {
+export function FeaturedEpisode({
+  episode,
+  guests = [],
+  youtube,
+  teaser,
+}: {
+  episode: Episode | null;
+  guests?: string[];
+  /** The channel, for "Subscribe on YouTube" (Site settings). */
+  youtube: string | null;
+  /** The pre-launch clip (Home page), shown until the episode is published. */
+  teaser: Teaser | null;
+}) {
   if (!episode) {
     return (
       <section className="bg-cream py-20 lg:py-28">
@@ -62,9 +73,11 @@ export function FeaturedEpisode({ episode, guests = [] }: { episode: Episode | n
           <Eyebrow>Episode 01</Eyebrow>
           <KnockKnock />
           <div className="mt-8">
-            <Button href={YOUTUBE_URL} external variant="outline-dark" arrow>
-              Subscribe on YouTube
-            </Button>
+            {youtube && (
+              <Button href={youtube} external variant="outline-dark" arrow>
+                Subscribe on YouTube
+              </Button>
+            )}
           </div>
         </Container>
       </section>
@@ -147,9 +160,11 @@ export function FeaturedEpisode({ episode, guests = [] }: { episode: Episode | n
                       Watch Episode
                     </Button>
                   )}
-                  <Button href={YOUTUBE_URL} external variant="outline-dark">
-                    Subscribe on YouTube
-                  </Button>
+                  {youtube && (
+                    <Button href={youtube} external variant="outline-dark">
+                      Subscribe on YouTube
+                    </Button>
+                  )}
                 </>
               ) : (
                 <>
@@ -157,9 +172,11 @@ export function FeaturedEpisode({ episode, guests = [] }: { episode: Episode | n
                     <span aria-hidden className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-sand" />
                     Up next
                   </span>
-                  <Button href={YOUTUBE_URL} external variant="outline-dark" arrow>
-                    Subscribe on YouTube
-                  </Button>
+                  {youtube && (
+                    <Button href={youtube} external variant="outline-dark" arrow>
+                      Subscribe on YouTube
+                    </Button>
+                  )}
                 </>
               )}
             </div>
@@ -186,9 +203,9 @@ export function FeaturedEpisode({ episode, guests = [] }: { episode: Episode | n
             <EpisodePlayer
               videoId={videoId}
               title={episode.title}
-              posterSrc={TEASER.poster}
-              previewSrc={published ? null : TEASER.src}
-              captionsSrc={TEASER.captions}
+              posterSrc={teaser?.poster ?? undefined}
+              previewSrc={published ? null : (teaser?.src ?? null)}
+              captionsSrc={teaser?.captions ?? null}
             />
           </Reveal>
         </div>
