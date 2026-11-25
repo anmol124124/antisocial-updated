@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { Container } from '@/components/ui/Container';
 import { Reveal } from '@/components/ui/Reveal';
 
@@ -26,23 +25,17 @@ export function Topics({ topics }: { topics: string[] }) {
         </Reveal>
 
         <Reveal delay={100}>
-          <ul className="mt-14 flex flex-wrap items-baseline gap-x-[0.35em] gap-y-1 border-t border-white/10 pt-12 font-display text-[clamp(2.25rem,6.2vw,5.25rem)] font-black leading-[1.08] tracking-[-0.04em] lg:mt-16 lg:pt-14">
+          {/* An index, like a magazine's: two aligned columns (one on phones), number and name per row. */}
+          <ol className="mt-12 grid border-t border-white/10 sm:grid-cols-2 sm:gap-x-12 lg:mt-16 lg:gap-x-20">
             {topics.map((topic, i) => (
-              <Fragment key={topic}>
-                <li className="inline-flex items-start whitespace-nowrap">
-                  <span aria-hidden className="mr-[0.18em] mt-[0.4em] hidden font-sans text-[0.16em] font-semibold tracking-[0.12em] text-signal sm:inline">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  {topic}
-                </li>
-                {i < topics.length - 1 && (
-                  <li aria-hidden className="text-signal">
-                    /
-                  </li>
-                )}
-              </Fragment>
+              <li key={topic} className="flex items-baseline gap-5 border-b border-white/10 py-4 sm:gap-7 sm:py-5">
+                <span aria-hidden className="w-7 shrink-0 text-[0.75rem] font-semibold tabular-nums tracking-[0.12em] text-signal">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="font-display text-[clamp(2rem,4.4vw,3.75rem)] font-black leading-none tracking-[-0.035em]">{topic}</span>
+              </li>
             ))}
-          </ul>
+          </ol>
         </Reveal>
       </Container>
     </section>

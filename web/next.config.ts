@@ -61,6 +61,8 @@ function securityHeaders() {
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // No Next.js badge in the corner while developing, so local previews look like the real site.
+  devIndicators: false,
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders() }];
   },

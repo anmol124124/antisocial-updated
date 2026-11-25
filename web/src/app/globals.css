@@ -164,6 +164,71 @@
   @media (prefers-reduced-motion: reduce) {
     .glitch::before, .glitch::after { display: none; }
   }
+  /*
+   * "Electric": letters that hum in place. Each 2.4 s cycle starts with a short
+   * burst (about 0.8 s) of tiny jitters in steps, like a signal, with a faint
+   * red glow, then the letter holds still. Offsets are in em, so big and small
+   * text buzz in proportion. The letter's place never changes.
+   */
+  .electric {
+    display: inline-block;
+    animation: electric-a 2.4s steps(1) infinite;
+  }
+  .electric-b { animation-name: electric-b; }
+  @keyframes electric-a {
+    0%   { transform: translate(0, 0); text-shadow: none; opacity: 1; }
+    4%   { transform: translate(0.018em, -0.012em); text-shadow: 0 0 0.14em rgba(229, 20, 27, 0.7); }
+    8%   { transform: translate(-0.015em, 0.01em); }
+    12%  { transform: translate(0.01em, 0.016em); opacity: 0.8; }
+    16%  { transform: translate(-0.018em, -0.008em); opacity: 1; }
+    20%  { transform: translate(0.012em, -0.014em); text-shadow: -0.03em 0 0 rgba(229, 20, 27, 0.65); }
+    24%  { transform: translate(-0.01em, 0.012em); }
+    28%  { transform: translate(0.016em, 0.006em); text-shadow: 0 0 0.1em rgba(229, 20, 27, 0.5); }
+    32%, 100% { transform: translate(0, 0); text-shadow: none; opacity: 1; }
+  }
+  @keyframes electric-b {
+    0%   { transform: translate(0, 0); text-shadow: none; opacity: 1; }
+    4%   { transform: translate(-0.016em, 0.012em); text-shadow: 0.03em 0 0 rgba(229, 20, 27, 0.6); }
+    8%   { transform: translate(0.014em, -0.012em); opacity: 0.85; }
+    12%  { transform: translate(-0.01em, -0.016em); opacity: 1; }
+    16%  { transform: translate(0.018em, 0.01em); text-shadow: 0 0 0.14em rgba(229, 20, 27, 0.7); }
+    20%  { transform: translate(-0.012em, 0.008em); }
+    24%  { transform: translate(0.01em, -0.014em); }
+    28%  { transform: translate(-0.016em, -0.004em); }
+    32%, 100% { transform: translate(0, 0); text-shadow: none; opacity: 1; }
+  }
+  /*
+   * The red glitch strip that runs through humming text at the start of each
+   * burst, on the same 2.4 s cycle as the letters (needs data-text).
+   */
+  .glitch-loop { position: relative; display: inline-block; }
+  .glitch-loop::before,
+  .glitch-loop::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .glitch-loop::before { color: var(--color-signal); animation: glitch-loop-a 2.4s steps(1) infinite; }
+  .glitch-loop::after { color: #fff; animation: glitch-loop-b 2.4s steps(1) infinite; }
+  @keyframes glitch-loop-a {
+    0%   { opacity: 0.85; transform: translate(-0.06em, 0); clip-path: inset(10% 0 55% 0); }
+    5%   { opacity: 0.85; transform: translate(0.05em, 0); clip-path: inset(60% 0 8% 0); }
+    10%  { opacity: 0.7; transform: translate(-0.03em, 0); clip-path: inset(35% 0 45% 0); }
+    14%, 100% { opacity: 0; transform: none; clip-path: inset(0 0 100% 0); }
+  }
+  @keyframes glitch-loop-b {
+    0%   { opacity: 0.5; transform: translate(0.05em, 0); clip-path: inset(40% 0 35% 0); }
+    5%   { opacity: 0.5; transform: translate(-0.035em, 0); clip-path: inset(5% 0 80% 0); }
+    10%, 100% { opacity: 0; transform: none; clip-path: inset(0 0 100% 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .electric { animation: none; }
+    .glitch-loop::before, .glitch-loop::after { display: none; }
+  }
+
   /* A typed line stays hidden until it starts typing (only while JavaScript runs). */
   .js .type-line[data-ready="false"] .type-text { visibility: hidden; }
 

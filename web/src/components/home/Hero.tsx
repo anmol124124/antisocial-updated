@@ -1,6 +1,7 @@
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
-import { Accent, Typewriter } from './Typewriter';
+import { Electric, Typewriter } from './Typewriter';
+import { HeroBackdrop } from './HeroBackdrop';
 
 /**
  * 01 / Hero (homepage brief, revised after the client's review): black, no
@@ -15,20 +16,21 @@ export function Hero({ lines }: { lines: string[] }) {
   const reply = lines.slice(2).join(' ');
   return (
     <section aria-labelledby="hero-title" className="grain relative isolate overflow-hidden bg-ink text-white">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{ background: 'radial-gradient(60% 55% at 50% 45%, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0) 70%)' }}
-      />
+      <HeroBackdrop />
 
       <Container className="relative flex min-h-[calc(100svh-4.5rem)] flex-col items-center justify-center py-20 text-center sm:py-24">
         <p className="kicker mb-8 text-white/55 sm:mb-10">The conversation platform</p>
 
         <h1 id="hero-title" className="headline w-full text-[clamp(2.5rem,5.8vw,5rem)]">
+          <span className="sr-only">{statement.join(' ')}</span>
           {statement.map((line, i) => (
-            <span key={line} className="block">
+            <span key={line} aria-hidden className="block">
               {i > 0 && ' '}
-              <Accent text={line} full={line} />
+              {/* White words still; the last (red) word hums with the line below. */}
+              {line.slice(0, line.trimEnd().lastIndexOf(' ') + 1)}
+              <span className="glitch-loop whitespace-nowrap" data-text={line.slice(line.trimEnd().lastIndexOf(' ') + 1)}>
+                <Electric text={line.slice(line.trimEnd().lastIndexOf(' ') + 1)} redFrom={0} />
+              </span>
             </span>
           ))}
           {reply && <span className="sr-only"> {reply}</span>}

@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 
 const TYPE_MS = 58;
 const START_DELAY_MS = 550;
-const GLITCH_MS = 320;
 
 /**
- * Types one line once, then leaves it with a blinking cursor and a short
- * glitch. It waits for the first-visit intro to finish (html.intro), so the
+ * Types one line once, then leaves it humming: every few seconds its letters
+ * jitter with a red glitch strip running through them (Electric), with a
+ * blinking cursor. It waits for the first-visit intro to finish (html.intro), so the
  * typing is what the visitor sees right after the stone breaks.
  *
  * Until it starts, the text is hidden only while <html> has the `js` class
@@ -18,7 +18,6 @@ const GLITCH_MS = 320;
 export function Typewriter({ text, className = '' }: { text: string; className?: string }) {
   const [count, setCount] = useState(text.length);
   const [started, setStarted] = useState(false);
-  const [glitch, setGlitch] = useState(false);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -48,15 +47,12 @@ export function Typewriter({ text, className = '' }: { text: string; className?:
     // A little unevenness, like a person typing.
     const timer = setTimeout(() => {
       setCount((c) => c + 1);
-      if (count + 1 === text.length) {
-        setGlitch(true);
-        setTimeout(() => setGlitch(false), GLITCH_MS);
-      }
     }, TYPE_MS + Math.random() * 40);
     return () => clearTimeout(timer);
   }, [started, count, text]);
 
   const shown = text.slice(0, count);
+  const done = started && count >= text.length;
   return (
     <span className={`type-line grid ${className}`} data-ready={started}>
       {/* The full line holds the space, invisibly. */}
@@ -64,11 +60,43 @@ export function Typewriter({ text, className = '' }: { text: string; className?:
         {text}
         <Cursor />
       </span>
-      <span aria-hidden className="type-text glitch col-start-1 row-start-1" data-text={shown} data-glitch={glitch}>
-        <Accent text={shown} full={text} />
+      {/* Once complete, the line hums: letters jitter and a red glitch strip runs through, in bursts. */}
+      <span
+        aria-hidden
+        className={`type-text col-start-1 row-start-1 ${done ? 'glitch-loop' : ''}`}
+        data-text={done ? text : undefined}
+      >
+        {done ? <Electric text={text} redFrom={text.trimEnd().lastIndexOf(' ') + 1} /> : <Accent text={shown} full={text} />}
         <Cursor blinking={count >= text.length} />
       </span>
     </span>
+  );
+}
+
+/**
+ * Text that hums with current: every few seconds the letters jitter in place
+ * for a moment (with a faint red glow), then hold still, then again. Each
+ * letter has its own small offset and timing, so it never moves as a block,
+ * and no letter ever leaves its place. Letters from `redFrom` on are red.
+ * CSS only ("electric" in globals.css); still with reduced motion.
+ */
+export function Electric({ text, redFrom }: { text: string; redFrom: number }) {
+  return (
+    <>
+      {[...text].map((ch, i) =>
+        ch === ' ' ? (
+          ' '
+        ) : (
+          <span
+            key={i}
+            className={`electric ${i % 2 ? 'electric-b' : ''} ${i >= redFrom ? 'text-signal' : ''}`}
+            style={{ animationDelay: `${(i % 3) * 0.03}s` }}
+          >
+            {ch}
+          </span>
+        ),
+      )}
+    </>
   );
 }
 
