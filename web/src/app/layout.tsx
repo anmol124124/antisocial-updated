@@ -37,7 +37,9 @@ export const viewport: Viewport = { themeColor: '#0b0b0c' };
  * again so every section shows without its animation rather than staying
  * invisible.
  */
-const REVEAL_FAILSAFE = `(function(){var d=document.documentElement;d.classList.add('js');setTimeout(function(){if(!window.__astRevealReady)d.classList.remove('js')},3000)})();`;
+// Before the first paint: `js` turns on the scroll reveals (removed again if the app never loads), and
+// `intro` plays the first-visit intro on the home page (components/home/IntroSplash), never with reduced motion.
+const REVEAL_FAILSAFE = `(function(){var d=document.documentElement;d.classList.add('js');try{if(location.pathname==='/'&&!localStorage.getItem('ast-intro-seen')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('intro')}catch(e){}setTimeout(function(){if(!window.__astRevealReady)d.classList.remove('js','intro')},3000)})();`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

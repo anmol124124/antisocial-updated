@@ -95,6 +95,8 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // CMS pictures come through this app's own proxy, with Directus' size/format parameters.
+    localPatterns: [{ pathname: '/api/assets/**' }],
     remotePatterns: [
       // CMS pictures normally come through this app's own /api/assets proxy (no host needed);
       // this allows direct Directus URLs too, for whichever CMS the env points at.

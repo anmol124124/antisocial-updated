@@ -9276,7 +9276,7 @@
         "group": null,
         "hidden": false,
         "interface": "tags",
-        "note": "The lines the top of the home page types out, one after another, then starts again. Press Enter after each.",
+        "note": "The headline at the top of the home page. The first two lines are shown together as the statement; the rest is typed out underneath. Press Enter after each line.",
         "options": {
           "alphabetize": false
         },

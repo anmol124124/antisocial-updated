@@ -2,102 +2,78 @@
 
 import { useEffect, useState } from 'react';
 
-const TYPE_MS = 62;
-const DELETE_MS = 30;
-const HOLD_MS = 1900;
-const GAP_MS = 380;
+const TYPE_MS = 58;
+const START_DELAY_MS = 550;
 const GLITCH_MS = 320;
 
-type Phase = 'hold' | 'deleting' | 'typing';
-
 /**
- * Types each line, holds it, backspaces and types the next, on a loop, with a
- * blinking cursor and a short glitch whenever a line is complete.
+ * Types one line once, then leaves it with a blinking cursor and a short
+ * glitch. It waits for the first-visit intro to finish (html.intro), so the
+ * typing is what the visitor sees right after the stone breaks.
  *
- * The first line is rendered in full on the server, so the page never opens
- * on an empty headline (and reads correctly without JavaScript). Every line
- * sits invisibly in the same grid cell, so the block is always as tall as the
- * longest line and nothing below it jumps. Screen readers get all the lines
- * once, as plain text. With reduced motion the lines are simply shown.
+ * Until it starts, the text is hidden only while <html> has the `js` class
+ * (so without JavaScript it is simply shown), and the full line always holds
+ * its space so nothing below moves. With reduced motion it is just shown.
  */
-export function Typewriter({ lines, className = '' }: { lines: string[]; className?: string }) {
-  const [index, setIndex] = useState(0);
-  const [count, setCount] = useState(lines[0]?.length ?? 0);
-  const [phase, setPhase] = useState<Phase>('hold');
+export function Typewriter({ text, className = '' }: { text: string; className?: string }) {
+  const [count, setCount] = useState(text.length);
+  const [started, setStarted] = useState(false);
   const [glitch, setGlitch] = useState(false);
-  const [still, setStill] = useState(false);
 
   useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setStill(media.matches);
-    update();
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setStarted(true);
+      return;
+    }
+    let timer: ReturnType<typeof setTimeout>;
+    const begin = () => {
+      timer = setTimeout(() => {
+        setCount(0);
+        setStarted(true);
+      }, START_DELAY_MS);
+    };
+    if (document.documentElement.classList.contains('intro')) {
+      window.addEventListener('ast:intro-done', begin, { once: true });
+    } else {
+      begin();
+    }
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('ast:intro-done', begin);
+    };
   }, []);
 
   useEffect(() => {
-    if (still || lines.length < 2) return;
-    const line = lines[index] ?? '';
-    let timer: ReturnType<typeof setTimeout>;
-
-    if (phase === 'hold') {
-      timer = setTimeout(() => setPhase('deleting'), HOLD_MS);
-    } else if (phase === 'deleting') {
-      if (count > 0) timer = setTimeout(() => setCount((c) => c - 1), DELETE_MS);
-      else
-        timer = setTimeout(() => {
-          setIndex((i) => (i + 1) % lines.length);
-          setPhase('typing');
-        }, GAP_MS);
-    } else if (count < line.length) {
-      // A little unevenness, like a person typing.
-      timer = setTimeout(() => setCount((c) => c + 1), TYPE_MS + Math.random() * 45);
-    } else {
-      setGlitch(true);
-      timer = setTimeout(() => {
-        setGlitch(false);
-        setPhase('hold');
-      }, GLITCH_MS);
-    }
+    if (!started || count >= text.length) return;
+    // A little unevenness, like a person typing.
+    const timer = setTimeout(() => {
+      setCount((c) => c + 1);
+      if (count + 1 === text.length) {
+        setGlitch(true);
+        setTimeout(() => setGlitch(false), GLITCH_MS);
+      }
+    }, TYPE_MS + Math.random() * 40);
     return () => clearTimeout(timer);
-  }, [phase, count, index, lines, still]);
+  }, [started, count, text]);
 
-  if (!lines.length) return null;
-
-  if (still) {
-    return (
-      <span className={`block ${className}`}>
-        {lines.map((line) => (
-          <span key={line} className="block">
-            <Accent text={line} full={line} />
-          </span>
-        ))}
-      </span>
-    );
-  }
-
-  const shown = (lines[index] ?? '').slice(0, count);
-
+  const shown = text.slice(0, count);
   return (
-    <span className={`grid ${className}`}>
-      <span className="sr-only">{lines.join(' ')}</span>
-      {/* The tallest line reserves the space, invisibly. */}
-      {lines.map((line) => (
-        <span key={line} aria-hidden className="invisible col-start-1 row-start-1">
-          {line}
-          <Cursor />
-        </span>
-      ))}
-      <span aria-hidden className="glitch col-start-1 row-start-1" data-text={shown} data-glitch={glitch}>
-        <Accent text={shown} full={lines[index] ?? ''} />
-        <Cursor blinking={phase === 'hold'} />
+    <span className={`type-line grid ${className}`} data-ready={started}>
+      {/* The full line holds the space, invisibly. */}
+      <span aria-hidden className="invisible col-start-1 row-start-1">
+        {text}
+        <Cursor />
+      </span>
+      <span aria-hidden className="type-text glitch col-start-1 row-start-1" data-text={shown} data-glitch={glitch}>
+        <Accent text={shown} full={text} />
+        <Cursor blinking={count >= text.length} />
       </span>
     </span>
   );
 }
 
 /** The last word of the line in red, as the brand sets its titles; `text` is how much of `full` is typed so far. */
-function Accent({ text, full }: { text: string; full: string }) {
+export function Accent({ text, full }: { text: string; full: string }) {
   const from = full.trimEnd().lastIndexOf(' ') + 1;
   return (
     <>
@@ -111,7 +87,7 @@ function Cursor({ blinking = true }: { blinking?: boolean }) {
   return (
     <span
       aria-hidden
-      className={`ml-[0.06em] inline-block h-[0.82em] w-[0.07em] translate-y-[0.06em] bg-signal align-baseline ${
+      className={`ml-[0.08em] inline-block h-[0.82em] w-[0.08em] translate-y-[0.06em] bg-signal align-baseline ${
         blinking ? 'animate-[blink_1s_steps(1)_infinite]' : ''
       }`}
     />

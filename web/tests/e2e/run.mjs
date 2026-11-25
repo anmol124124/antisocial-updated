@@ -332,6 +332,10 @@ async function runChecks(mode, cms) {
     expect(!home.includes('aria-label="Mission and vision"'), 'Mission and Vision is still on the home page');
     expect(!home.includes('question-title'), 'The AntiSocial Question is no longer part of the home page');
 
+    // First-visit intro ("Breaking the silence"): on the home page only, switched on before the first paint.
+    expect(home.includes('id="intro"') && home.includes('Skip intro') && home.includes('ast-intro-seen'), 'the first-visit intro is missing');
+    expect(!html('/about').includes('id="intro"'), 'the intro belongs to the home page only');
+
     // Hero: no photograph, the four lines (typed in turn; all of them for screen readers), Listen Now and Start a Chapter (to /chapters).
     const hero = sectionOf(0);
     expect(/They called\s+us\s+AntiSocial\.\s+We decided to\s+talk\./.test(textOf(hero)) && textOf(hero).includes('Not anti-society. Anti-silence.'), 'the hero lines are missing');
