@@ -43,8 +43,7 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: port,
       },
-      error_file: `/home/ubuntu/.pm2/logs/${name}-error.log`,
-      out_file: `/home/ubuntu/.pm2/logs/${name}-out.log`,
+      // Logs go to pm2's default folder (~/.pm2/logs/<name>-out.log / -error.log).
       time: true,
     },
   ],

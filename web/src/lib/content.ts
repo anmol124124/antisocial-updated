@@ -7,7 +7,7 @@ import type { Profile } from './chapters';
 export type Host = {
   id: number;
   name: string;
-  /** e.g. "Host & Moderator | AntiSocialTalks". Added 2026-10 — see scripts/content-update-2026-10-04.mjs. */
+  /** e.g. "Host & Moderator | AntiSocialTalks". Added 2026-10 — see scripts/migrations/content-update-2026-10-04.mjs. */
   designation?: string | null;
   /** A one-line signature quote shown under the host. Added 2026-10. */
   quote?: string | null;
@@ -70,7 +70,7 @@ export type Chapter = {
 };
 
 /**
- * One event inside a chapter (added 2026-10 — see scripts/chapters-schema-2026-10-10.mjs).
+ * One event inside a chapter (added 2026-10 — see scripts/migrations/chapters-schema-2026-10-10.mjs).
  * Chapters are the local communities; events are what they put on. Only rows
  * with visibility "published" are ever read by the site, so the team can draft
  * an event, its speakers and schedule privately until it's confirmed.

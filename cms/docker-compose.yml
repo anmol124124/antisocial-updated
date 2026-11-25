@@ -15,7 +15,7 @@ services:
       retries: 10
 
   directus:
-    image: directus/directus:11
+    image: directus/directus:11.17.4
     restart: unless-stopped
     # Bound to localhost only — nginx on the host reverse-proxies to this,
     # same pattern as the other Node apps on this VPS. Never expose 8055

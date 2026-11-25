@@ -1,6 +1,6 @@
 // Generated from Natural Earth country outlines (public domain, via world-atlas@2.0.2,
 // countries-50m), on a 2-degree grid: longitude -180 to 180, latitude 78 to -56.
-// One dot per cell that is land. Made by scripts/world-map.mjs: regenerate rather than edit by hand.
+// One dot per cell that is land. Made by scripts/dev/world-map.mjs: regenerate rather than edit by hand.
 
 /** The grid: 180 columns by 67 rows, one unit per cell, a dot at each whole number. */
 export const MAP_COLS = 180;

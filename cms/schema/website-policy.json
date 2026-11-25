@@ -1,0 +1,263 @@
+{
+  "policy": {
+    "name": "Website (read content, create submissions)",
+    "icon": "public",
+    "description": "The website server: reads published content, records forms, orders and bookings. No admin app, cannot read submissions or applications back.",
+    "admin_access": false,
+    "app_access": false
+  },
+  "permissions": [
+    {
+      "collection": "about_values",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": null,
+      "presets": null
+    },
+    {
+      "collection": "applications",
+      "action": "create",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "chapter_guide",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": null,
+      "presets": null
+    },
+    {
+      "collection": "chapters",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "community_ways",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": null,
+      "presets": null
+    },
+    {
+      "collection": "directus_files",
+      "action": "create",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "directus_files",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "episodes",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "event_registrations",
+      "action": "create",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "event_registrations",
+      "action": "read",
+      "fields": [
+        "id",
+        "event",
+        "kind",
+        "status",
+        "attendees",
+        "payment_status",
+        "date_created",
+        "guest_key"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "event_registrations",
+      "action": "update",
+      "fields": [
+        "status",
+        "payment_status"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "events",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {
+        "visibility": {
+          "_eq": "published"
+        }
+      },
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "guests",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "home_page",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": null,
+      "presets": null
+    },
+    {
+      "collection": "home_pillars",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": null,
+      "presets": null
+    },
+    {
+      "collection": "hosts",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "orders",
+      "action": "create",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "orders",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "orders",
+      "action": "update",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "roadshow_stops",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": null,
+      "presets": null
+    },
+    {
+      "collection": "shop_products",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "site_settings",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": null,
+      "presets": null
+    },
+    {
+      "collection": "submissions",
+      "action": "create",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    },
+    {
+      "collection": "topics",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {},
+      "validation": {},
+      "presets": null
+    }
+  ]
+}

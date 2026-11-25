@@ -17,7 +17,7 @@
 #   docker compose -f docker-compose.local.yml down -v       # wipes data
 #
 # Dashboard:  http://localhost:8055
-# Login:      admin@antisocialtalks.local  /  admin1234
+# Login:      admin@example.com  /  admin1234
 # ─────────────────────────────────────────────────────────────────────
 
 services:
@@ -37,7 +37,7 @@ services:
       retries: 10
 
   directus:
-    image: directus/directus:11
+    image: directus/directus:11.17.4
     restart: unless-stopped
     ports:
       - '8055:8055'
@@ -56,7 +56,7 @@ services:
       DB_USER: directus
       DB_PASSWORD: directus-local-dev
 
-      ADMIN_EMAIL: admin@antisocialtalks.local
+      ADMIN_EMAIL: admin@example.com
       ADMIN_PASSWORD: admin1234
 
       PUBLIC_URL: http://localhost:8055

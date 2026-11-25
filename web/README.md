@@ -22,8 +22,8 @@ npm run dev                    # http://localhost:3012
 | `src/lib/gelato.ts` | Direct Gelato REST client (catalog, quote, order) |
 | `src/lib/payments.ts` | Taking money through Stripe, and handing paid orders to the printer (`fulfilment.ts`) |
 | `src/components/` | UI, split by area: `site`, `home`, `episodes`, `guests`, `shop`, `forms`, `ui` |
-| `scripts/verify-gelato.mjs` | Checks the Gelato key actually works |
-| `scripts/seed-directus.mjs` | Adds the `topics` + `shop_products` collections and seeds content |
+| `scripts/verify/verify-gelato.mjs` | Checks the Gelato key actually works |
+| `scripts/migrations/seed-directus.mjs` | Adds the `topics` + `shop_products` collections and seeds content |
 
 ## Content: Directus is the only source
 
@@ -52,7 +52,7 @@ npm run dev           # http://localhost:3012
 
 `setup:local` is idempotent. It waits for Directus to come up, logs in, gives
 the admin a static token (so nothing has to be made public locally), then runs
-`../cms/provision-schema.js` followed by `scripts/seed-directus.mjs`.
+`../cms/provision-schema.js` followed by `scripts/migrations/seed-directus.mjs`.
 
 Local dashboard: <http://localhost:8055> — `admin@antisocialtalks.local` /
 `admin1234`, set in `../cms/docker-compose.local.yml`. Those credentials are
@@ -83,7 +83,7 @@ npm run cms:down      # stop, keeping the data
 
    ```bash
    DIRECTUS_URL=... DIRECTUS_EMAIL=... DIRECTUS_PASSWORD=... \
-   node scripts/create-site-token.mjs
+   node ../cms/scripts/create-site-token.mjs
    ```
 
    Its policy reads the content collections and files and creates
@@ -116,7 +116,7 @@ That lists the catalogs your account can print from and prints real
 set status to Published — the product appears in the shop.
 
 The merch range lives in `merch/products.json` and goes in with
-`node scripts/add-products.mjs merch/products.json` (`--check` first; it only
+`node scripts/shop/add-products.mjs merch/products.json` (`--check` first; it only
 checks Gelato and the files). Each product is one shop item with a colour
 option: extra colours are `colorways`, each with its own Gelato template,
 print files, mockup and swatch, or `"markets": ["IN"]` when only Qikink makes
