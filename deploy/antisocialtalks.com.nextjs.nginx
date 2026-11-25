@@ -1,0 +1,62 @@
+# nginx for antisocialtalks.com as the Next.js app (pm2 "antisocialtalks.com",
+# port 3021), replacing the single static index.html.
+#
+#   sudo cp antisocialtalks.com.nextjs.nginx /etc/nginx/sites-available/antisocialtalks.com
+#   sudo nginx -t && sudo systemctl reload nginx
+#
+# www.antisocialtalks.com redirects to antisocialtalks.com, so search engines
+# see one address. If the old config had certbot's HTTPS lines, run
+#   sudo certbot --nginx -d antisocialtalks.com -d www.antisocialtalks.com --reinstall
+# afterwards to put them back (it reuses the existing certificate).
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name www.antisocialtalks.com;
+    return 301 https://antisocialtalks.com$request_uri;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name antisocialtalks.com;
+
+    # Next streams its own responses; let it.
+    proxy_buffering off;
+
+    # Hashed build output: safe to cache hard and forever.
+    location /_next/static/ {
+        proxy_pass http://127.0.0.1:3021;
+        proxy_set_header Host $host;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # Files from web/public (images, video, og-image).
+    location ~* ^/(images|video)/ {
+        proxy_pass http://127.0.0.1:3021;
+        proxy_set_header Host $host;
+        expires 7d;
+        add_header Cache-Control "public";
+        add_header Accept-Ranges bytes;
+        access_log off;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3021;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+        client_max_body_size 12M;  # proposal uploads are up to 10 MB, plus the form
+    }
+
+    gzip on;
+    gzip_proxied any;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+}

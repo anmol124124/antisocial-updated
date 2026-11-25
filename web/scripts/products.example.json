@@ -1,0 +1,28 @@
+{
+  "products": [
+    {
+      "title": "AntiSocial Tee",
+      "description": "Heavy cotton crew neck with the AntiSocialTalks mark on the front. Printed to order.",
+      "price": 999,
+      "currency": "INR",
+      "design": "designs/tee-front.png",
+      "photo": "photos/tee-black-model.jpg",
+      "mockup": "mockups/tee-black.jpg",
+      "uid_template": "apparel_product_gca_t-shirt_gsc_crewneck_gcu_unisex_gqa_classic_gsi_{size}_gco_{color}_gpr_4-0",
+      "colors": ["black", "white"],
+      "sizes": ["S", "M", "L", "XL", "2XL"],
+      "publish": false,
+      "sort": 1
+    },
+    {
+      "title": "Anti-Silence Mug",
+      "description": "11 oz ceramic mug.",
+      "price": 599,
+      "design": "designs/mug-wrap.png",
+      "mockup": "mockups/mug.jpg",
+      "uid": "mug_product_msz_11-oz_mmat_ceramic-black_cl_4-0",
+      "publish": false,
+      "sort": 2
+    }
+  ]
+}

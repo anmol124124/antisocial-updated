@@ -1,0 +1,62 @@
+services:
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: directus
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --host=localhost --username=directus"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  directus:
+    image: directus/directus:11
+    restart: unless-stopped
+    # Bound to localhost only — nginx on the host reverse-proxies to this,
+    # same pattern as the other Node apps on this VPS. Never expose 8055
+    # directly to the internet.
+    ports:
+      - "127.0.0.1:8055:8055"
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
+      DB_CLIENT: pg
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_DATABASE: directus
+      DB_USER: directus
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      # Set per environment in .env — staging and production use the same
+      # compose file and differ only by these values.
+      PUBLIC_URL: ${PUBLIC_URL}
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      # Outbound email for Flows (e.g. "new submission" notifications).
+      # Leave blank to start — Directus runs fine without it, only the
+      # email-notification Flow needs it. Fill in once you have SMTP
+      # credentials or a transactional email provider (see cms/README.md).
+      EMAIL_FROM: ${EMAIL_FROM}
+      EMAIL_TRANSPORT: smtp
+      EMAIL_SMTP_HOST: ${SMTP_HOST}
+      EMAIL_SMTP_PORT: ${SMTP_PORT}
+      EMAIL_SMTP_USER: ${SMTP_USER}
+      EMAIL_SMTP_PASSWORD: ${SMTP_PASSWORD}
+      EMAIL_SMTP_SECURE: "false"
+    volumes:
+      - uploads:/directus/uploads
+      - extensions:/directus/extensions
+
+volumes:
+  db-data:
+  uploads:
+  extensions:

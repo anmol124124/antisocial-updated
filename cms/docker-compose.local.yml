@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────────────
+# LOCAL DEVELOPMENT ONLY — do not deploy this file to the VPS.
+#
+# Standalone: it does not read a .env file, because the secrets below are
+# throwaway dev values. The production stack stays in docker-compose.yml.
+#
+# Differences from production:
+#   - port 8055 is exposed to the whole machine, not just 127.0.0.1,
+#     so the Next.js dev server can reach it;
+#   - CORS allows localhost:3012 (the Next.js dev port);
+#   - PUBLIC_URL points at localhost;
+#   - no SMTP, so no email Flow (submissions still land in the dashboard).
+#
+#   docker compose -f docker-compose.local.yml up -d
+#   docker compose -f docker-compose.local.yml logs -f directus
+#   docker compose -f docker-compose.local.yml down          # keeps data
+#   docker compose -f docker-compose.local.yml down -v       # wipes data
+#
+# Dashboard:  http://localhost:8055
+# Login:      admin@antisocialtalks.local  /  admin1234
+# ─────────────────────────────────────────────────────────────────────
+
+services:
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - db-data-local:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: directus-local-dev
+      POSTGRES_DB: directus
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready --host=localhost --username=directus']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  directus:
+    image: directus/directus:11
+    restart: unless-stopped
+    ports:
+      - '8055:8055'
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      # Throwaway local values. Production uses `openssl rand -hex 32`.
+      KEY: local-dev-key-not-secret
+      SECRET: local-dev-secret-not-secret
+
+      DB_CLIENT: pg
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_DATABASE: directus
+      DB_USER: directus
+      DB_PASSWORD: directus-local-dev
+
+      ADMIN_EMAIL: admin@antisocialtalks.local
+      ADMIN_PASSWORD: admin1234
+
+      PUBLIC_URL: http://localhost:8055
+
+      CORS_ENABLED: 'true'
+      CORS_ORIGIN: 'http://localhost:3012,http://127.0.0.1:3012'
+
+      # Directus refuses to start on some setups without this when the
+      # dashboard is served over plain http.
+      SESSION_COOKIE_SECURE: 'false'
+      REFRESH_TOKEN_COOKIE_SECURE: 'false'
+    volumes:
+      - uploads-local:/directus/uploads
+      - extensions-local:/directus/extensions
+
+volumes:
+  db-data-local:
+  uploads-local:
+  extensions-local:

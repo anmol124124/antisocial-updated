@@ -1,0 +1,59 @@
+# nginx for stage.antisocialtalks.com -> the Next.js app on 127.0.0.1:3012.
+#
+# The live antisocialtalks.com config is untouched by this; staging is a
+# separate server block, a separate /var/www directory and a separate pm2 app.
+#
+#   sudo cp stage.antisocialtalks.com.nginx /etc/nginx/sites-available/stage.antisocialtalks.com
+#   sudo ln -s /etc/nginx/sites-available/stage.antisocialtalks.com /etc/nginx/sites-enabled/
+#   sudo nginx -t && sudo systemctl reload nginx
+#
+# Run certbot AFTER this is in place; it rewrites the file to add the 443
+# block and the http->https redirect.
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name stage.antisocialtalks.com;
+
+    # Next streams its own responses; don't buffer them.
+    proxy_buffering off;
+
+    # Belt and braces with the app's own robots.txt and meta noindex.
+    add_header X-Robots-Tag "noindex, nofollow" always;
+
+    # Hashed build output - safe to cache hard.
+    location /_next/static/ {
+        proxy_pass http://127.0.0.1:3012;
+        proxy_set_header Host $host;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # Files from web/public (images, video, og-image).
+    location ~* ^/(images|video)/ {
+        proxy_pass http://127.0.0.1:3012;
+        proxy_set_header Host $host;
+        expires 7d;
+        add_header Cache-Control "public";
+        add_header Accept-Ranges bytes;
+        access_log off;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3012;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+        client_max_body_size 12M;  # proposal uploads are up to 10 MB, plus the form
+    }
+
+    gzip on;
+    gzip_proxied any;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+}
