@@ -3695,6 +3695,152 @@
       }
     },
     {
+      "collection": "chapter_guide",
+      "field": "organising_steps",
+      "type": "json",
+      "meta": {
+        "collection": "chapter_guide",
+        "conditions": null,
+        "display": null,
+        "display_options": null,
+        "field": "organising_steps",
+        "group": null,
+        "hidden": false,
+        "interface": "list",
+        "note": "\"From an Idea to a City Conversation\": the organiser steps, on Events and beside the organiser form.",
+        "options": {
+          "addLabel": "Add",
+          "fields": [
+            {
+              "field": "title",
+              "meta": {
+                "field": "title",
+                "interface": "input",
+                "type": "string",
+                "width": "half"
+              },
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "field": "body",
+              "meta": {
+                "field": "body",
+                "interface": "input-multiline",
+                "type": "text",
+                "width": "full"
+              },
+              "name": "body",
+              "type": "text"
+            }
+          ],
+          "template": "{{title}}"
+        },
+        "readonly": false,
+        "required": false,
+        "searchable": true,
+        "sort": 19,
+        "special": [
+          "cast-json"
+        ],
+        "translations": null,
+        "validation": null,
+        "validation_message": null,
+        "width": "full"
+      },
+      "schema": {
+        "name": "organising_steps",
+        "table": "chapter_guide",
+        "data_type": "json",
+        "default_value": null,
+        "max_length": null,
+        "numeric_precision": null,
+        "numeric_scale": null,
+        "is_nullable": true,
+        "is_unique": false,
+        "is_indexed": false,
+        "is_primary_key": false,
+        "is_generated": false,
+        "generation_expression": null,
+        "has_auto_increment": false,
+        "foreign_key_table": null,
+        "foreign_key_column": null
+      }
+    },
+    {
+      "collection": "chapter_guide",
+      "field": "team_support",
+      "type": "json",
+      "meta": {
+        "collection": "chapter_guide",
+        "conditions": null,
+        "display": null,
+        "display_options": null,
+        "field": "team_support",
+        "group": null,
+        "hidden": false,
+        "interface": "list",
+        "note": "\"What the Global Team Provides\" on Become a Chapter Leader.",
+        "options": {
+          "addLabel": "Add",
+          "fields": [
+            {
+              "field": "title",
+              "meta": {
+                "field": "title",
+                "interface": "input",
+                "type": "string",
+                "width": "half"
+              },
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "field": "body",
+              "meta": {
+                "field": "body",
+                "interface": "input-multiline",
+                "type": "text",
+                "width": "full"
+              },
+              "name": "body",
+              "type": "text"
+            }
+          ],
+          "template": "{{title}}"
+        },
+        "readonly": false,
+        "required": false,
+        "searchable": true,
+        "sort": 20,
+        "special": [
+          "cast-json"
+        ],
+        "translations": null,
+        "validation": null,
+        "validation_message": null,
+        "width": "full"
+      },
+      "schema": {
+        "name": "team_support",
+        "table": "chapter_guide",
+        "data_type": "json",
+        "default_value": null,
+        "max_length": null,
+        "numeric_precision": null,
+        "numeric_scale": null,
+        "is_nullable": true,
+        "is_unique": false,
+        "is_indexed": false,
+        "is_primary_key": false,
+        "is_generated": false,
+        "generation_expression": null,
+        "has_auto_increment": false,
+        "foreign_key_table": null,
+        "foreign_key_column": null
+      }
+    },
+    {
       "collection": "chapters",
       "field": "city",
       "type": "string",

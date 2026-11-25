@@ -48,10 +48,6 @@ function provider(): Provider {
 
 let warned = false;
 
-export function mailIsConfigured(): boolean {
-  return provider() !== null;
-}
-
 /** Returns whether the mail was handed to the provider. Never throws. */
 export async function sendMail(mail: Mail): Promise<boolean> {
   const via = provider();

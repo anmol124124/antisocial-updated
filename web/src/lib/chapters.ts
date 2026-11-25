@@ -565,17 +565,6 @@ export function applicationBySlug(slug: string): ApplicationConfig | undefined {
   return Object.values(APPLICATIONS).find((a) => a.slug === slug);
 }
 
-/** "From an Idea to a City Conversation" — shown on /chapters and beside the organiser form. */
-export const ORGANISING_STEPS = [
-  { title: 'Share Your Idea', body: 'Submit your city, theme and event proposal.' },
-  { title: 'Meet Our Team', body: 'Discuss the concept, audience and organising plan.' },
-  {
-    title: 'Build the Event Together',
-    body: 'Approved organisers agree the format, responsibilities, brand guidelines and relevant agreements.',
-  },
-  { title: 'Open the Doors', body: 'After final approval, publish the event and begin registrations.' },
-];
-
 /** The forms served at /chapters/apply/[slug]. Start a Chapter and the organiser form have their own pages. */
 export const COMMUNITY_OPTIONS: ApplicationType[] = ['speaker', 'local_team', 'chapter_partner'];
 

@@ -17,11 +17,14 @@ const TEN_MINUTES = 10 * 60_000;
 
 export const LIMITS = {
   submissions: { max: 10, windowMs: TEN_MINUTES },
-  register: { max: 10, windowMs: TEN_MINUTES },
+  // Also private-invitation RSVPs, which several guests may send from one office or venue network.
+  register: { max: 20, windowMs: TEN_MINUTES },
   apply: { max: 5, windowMs: TEN_MINUTES },
   quote: { max: 40, windowMs: TEN_MINUTES },
   checkout: { max: 10, windowMs: TEN_MINUTES },
   confirm: { max: 40, windowMs: TEN_MINUTES },
+  // Gelato's status callbacks: far below this in practice; stops someone looping order numbers.
+  gelatoHook: { max: 120, windowMs: TEN_MINUTES },
 } satisfies Record<string, Limit>;
 
 type Bucket = keyof typeof LIMITS;

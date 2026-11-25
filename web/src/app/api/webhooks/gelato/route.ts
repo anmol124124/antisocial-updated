@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { queryItems } from '@/lib/directus';
 import { syncShipment } from '@/lib/order-ops';
 import type { OrderRow } from '@/lib/payments';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,6 +17,9 @@ export const dynamic = 'force-dynamic';
  * every few minutes, so a missed webhook only delays the email.
  */
 export async function POST(request: Request) {
+  const limited = rateLimit(request, 'gelatoHook');
+  if (limited) return limited;
+
   let event: { orderId?: string; orderReferenceId?: string; event?: string };
   try {
     event = await request.json();

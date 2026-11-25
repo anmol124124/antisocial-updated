@@ -1,8 +1,12 @@
 import type { Metadata } from 'next';
 
-/** The share card a link shows when its page has no picture of its own. The picture is chosen in the CMS (Site settings); see app/api/share-image. */
+/**
+ * The share card a link shows when its page has no picture of its own. The picture is chosen in
+ * the CMS (Site settings) and served at /og-image.jpg by app/api/share-image (see next.config.ts):
+ * an address outside /api/, which robots.txt keeps open for X's and LinkedIn's card crawlers.
+ */
 export const SHARE_IMAGE = {
-  url: '/api/share-image',
+  url: '/og-image.jpg',
   width: 1200,
   height: 630,
   alt: 'AntiSocialTalks: They called us AntiSocial. We decided to talk.',

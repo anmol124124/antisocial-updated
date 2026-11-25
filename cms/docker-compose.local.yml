@@ -5,8 +5,8 @@
 # throwaway dev values. The production stack stays in docker-compose.yml.
 #
 # Differences from production:
-#   - port 8055 is exposed to the whole machine, not just 127.0.0.1,
-#     so the Next.js dev server can reach it;
+#   - port 8055 is published on this computer (127.0.0.1 only, not the
+#     network), so the Next.js dev server can reach it;
 #   - CORS allows localhost:3012 (the Next.js dev port);
 #   - PUBLIC_URL points at localhost;
 #   - no SMTP, so no email Flow (submissions still land in the dashboard).
@@ -40,7 +40,7 @@ services:
     image: directus/directus:11.17.4
     restart: unless-stopped
     ports:
-      - '8055:8055'
+      - '127.0.0.1:8055:8055'
     depends_on:
       database:
         condition: service_healthy

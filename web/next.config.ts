@@ -33,13 +33,14 @@ function securityHeaders() {
   const https = (process.env.NEXT_PUBLIC_SITE_URL || '').startsWith('https://');
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
+    // Cloudflare Web Analytics, in case it is switched on in the Cloudflare dashboard.
+    "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://i.ytimg.com",
     "media-src 'self' blob:",
     'frame-src https://www.youtube-nocookie.com',
-    "connect-src 'self'",
+    "connect-src 'self' https://cloudflareinsights.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -62,6 +63,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders() }];
+  },
+  async rewrites() {
+    // The default share picture keeps its old public address (allowed in robots.txt).
+    return [{ source: '/og-image.jpg', destination: '/api/share-image' }];
   },
   async redirects() {
     return [

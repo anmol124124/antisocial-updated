@@ -228,6 +228,42 @@
           "title": "How to Organise an Event",
           "body": "A repeatable 90-minute first event."
         }
+      ],
+      "organising_steps": [
+        {
+          "title": "Share Your Idea",
+          "body": "Submit your city, theme and event proposal."
+        },
+        {
+          "title": "Meet Our Team",
+          "body": "Discuss the concept, audience and organising plan."
+        },
+        {
+          "title": "Build the Event Together",
+          "body": "Approved organisers agree the format, responsibilities, brand guidelines and relevant agreements."
+        },
+        {
+          "title": "Open the Doors",
+          "body": "After final approval, publish the event and begin registrations."
+        }
+      ],
+      "team_support": [
+        {
+          "title": "The framework",
+          "body": "How a chapter runs inside the global brand and chapter standards."
+        },
+        {
+          "title": "Brand guidance",
+          "body": "How to use the AntiSocialTalks name and identity, once authorised."
+        },
+        {
+          "title": "Speaker standards",
+          "body": "What makes a speaker, and how speakers are prepared."
+        },
+        {
+          "title": "Onboarding",
+          "body": "A founder orientation, then support through your launch plan."
+        }
       ]
     }
   },

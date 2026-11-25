@@ -37,12 +37,7 @@ export default async function BecomeLeaderPage() {
       <Band tone="sand" eyebrow="What the Global Team Provides" title="You’re not doing it alone.">
         <Cards
           cols={4}
-          items={[
-            { title: 'The framework', body: 'How a chapter runs inside the global brand and chapter standards.' },
-            { title: 'Brand guidance', body: 'How to use the AntiSocialTalks name and identity, once authorised.' },
-            { title: 'Speaker standards', body: 'What makes a speaker, and how speakers are prepared.' },
-            { title: 'Onboarding', body: 'A founder orientation, then support through your launch plan.' },
-          ]}
+          items={guide.teamSupport}
         />
         <Note>{guide.framework}</Note>
       </Band>

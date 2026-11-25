@@ -22,7 +22,7 @@ npm run dev           # http://localhost:3012
 | `src/lib/directus.ts` | Directus REST client: every content read and write goes through it |
 | `src/lib/content.ts` | Episodes, guests, hosts, chapters, events, topics, products |
 | `src/lib/site-content.ts` | Site settings (contact email, social links, share picture), home page, About values, community forms wording, Roadshow, Chapters guide |
-| `src/lib/env.ts` | Every setting read from the environment, with a clear error when one is missing |
+| `src/lib/env.ts` | Site-wide settings (site address, indexing, CMS, Gelato key) with clear errors; each integration reads its own settings next to its code |
 | `src/lib/rate-limit.ts` | Per-visitor limits on the public forms, quotes and checkout |
 | `src/lib/gelato.ts`, `qikink.ts`, `stripe.ts`, `payments.ts`, `fulfilment.ts` | The shop: printing, payments, handing paid orders to the printer |
 | `src/lib/legal.ts` | Terms and Privacy text (kept in code on purpose: it changes with the lawyer, not the team) |
@@ -49,7 +49,8 @@ and the reason is logged once on the server.
 The CMS schema, the website's permissions and the starting content are in
 `../cms` and applied with one command (`npm run cms:provision`, see
 `../cms/README.md`). The local admin login is in `../cms/docker-compose.local.yml`
-(throwaway values, never deployed).
+(throwaway values, never deployed). It is now `admin@example.com` (Directus rejects `.local`
+addresses); a local CMS made before keeps its old login: pass `DIRECTUS_EMAIL`, or `npm run cms:down -- -v` to start fresh.
 
 ```bash
 npm run cms:logs      # follow the Directus log

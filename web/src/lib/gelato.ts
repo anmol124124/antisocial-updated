@@ -4,10 +4,9 @@ import { gelatoApiKey } from './env';
 /**
  * Direct Gelato REST integration — no Shopify/Printify layer in between.
  *
- * Gelato splits its API across subdomains:
- *   product.gelatoapis.com    browse the print catalog
- *   order.gelatoapis.com      quote / create / track / cancel orders
- *   ecommerce.gelatoapis.com  manage products inside a connected store
+ * The site uses Gelato's order API (order.gelatoapis.com): quote, create,
+ * track and cancel orders. Browsing the catalog is done by the scripts in
+ * scripts/shop (gelato-find, add-products).
  *
  * Every request authenticates with one header: X-API-KEY.
  *
@@ -16,7 +15,6 @@ import { gelatoApiKey } from './env';
  * Gelato does revise these payloads.
  */
 
-const PRODUCT_API = 'https://product.gelatoapis.com/v3';
 const ORDER_API = 'https://order.gelatoapis.com/v4';
 
 export class GelatoError extends Error {
@@ -61,67 +59,6 @@ async function gelatoFetch<T>(url: string, init: RequestInit & { next?: { revali
   }
 
   return body as T;
-}
-
-/* ─────────────────────────── product catalog ─────────────────────────── */
-
-export type Catalog = { catalogUid: string; title: string; productAttributes?: unknown[] };
-
-export function listCatalogs() {
-  return gelatoFetch<Catalog[]>(`${PRODUCT_API}/catalogs`);
-}
-
-export function getCatalog(catalogUid: string) {
-  return gelatoFetch<Catalog>(`${PRODUCT_API}/catalogs/${catalogUid}`);
-}
-
-export type CatalogSearchResult = {
-  products: Array<{ productUid: string; attributes?: Record<string, string> }>;
-  hits?: unknown;
-};
-
-export function searchCatalogProducts(catalogUid: string, filters: Record<string, unknown> = {}) {
-  return gelatoFetch<CatalogSearchResult>(
-    `${PRODUCT_API}/catalogs/${catalogUid}/products:search`,
-    { method: 'POST', body: JSON.stringify(filters) },
-  );
-}
-
-export type GelatoProduct = {
-  productUid: string;
-  attributes?: Record<string, string>;
-  weight?: { value: number; measureUnit: string };
-  dimensions?: Record<string, { value: number; measureUnit: string }>;
-  supportedCountries?: string[];
-  printAreas?: unknown[];
-  notSupportedCountries?: string[];
-};
-
-/** Catalogue details change rarely, so they are cached for a day. */
-export function getProduct(productUid: string) {
-  return gelatoFetch<GelatoProduct>(`${PRODUCT_API}/products/${encodeURIComponent(productUid)}`, {
-    next: { revalidate: 86_400 },
-  });
-}
-
-export type PriceRow = {
-  productUid: string;
-  country: string;
-  currency: string;
-  price: number;
-  pageCount?: number | null;
-  quantity: number;
-};
-
-/** Wholesale price Gelato charges you, per country/currency. */
-export function getProductPrices(productUid: string, country?: string, currency?: string) {
-  const params = new URLSearchParams();
-  if (country) params.set('country', country);
-  if (currency) params.set('currency', currency);
-  const qs = params.size ? `?${params}` : '';
-  return gelatoFetch<PriceRow[]>(
-    `${PRODUCT_API}/products/${encodeURIComponent(productUid)}/prices${qs}`,
-  );
 }
 
 /* ──────────────────────────────  orders  ──────────────────────────── */
@@ -253,10 +190,6 @@ export function createDraftOrder(order: OrderPayload) {
     method: 'POST',
     body: JSON.stringify({ orderType: 'draft', ...order }),
   });
-}
-
-export function getOrder(orderId: string) {
-  return gelatoFetch<GelatoOrder>(`${ORDER_API}/orders/${encodeURIComponent(orderId)}`);
 }
 
 export function cancelOrder(orderId: string) {

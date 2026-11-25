@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta';
 import { ApplicationPage } from '@/components/chapters/ApplicationPage';
-import { APPLICATIONS, ORGANISING_STEPS } from '@/lib/chapters';
+import { APPLICATIONS } from '@/lib/chapters';
+import { getChapterGuide } from '@/lib/site-content';
 
 export const metadata: Metadata = {
   title: 'Create Your Own Event with AntiSocial',
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/chapters/organise' },
 };
 
-export default function OrganisePage() {
+export default async function OrganisePage() {
+  const { organisingSteps } = await getChapterGuide();
   return (
     <ApplicationPage
       type="organiser"
@@ -17,7 +19,7 @@ export default function OrganisePage() {
         <aside className="rounded-[1.75rem] bg-ink p-8 text-white lg:sticky lg:top-28">
           <p className="eyebrow text-white/55">What happens next</p>
           <ol className="mt-6 space-y-6">
-            {ORGANISING_STEPS.map(({ title, body }, i) => (
+            {organisingSteps.map(({ title, body }, i) => (
               <li key={title} className="flex gap-4">
                 <span className="font-serif text-xl italic text-sand/80">{String(i + 1).padStart(2, '0')}</span>
                 <span>

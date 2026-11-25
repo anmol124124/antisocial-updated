@@ -2,7 +2,7 @@
 /**
  * Put merch into the shop from one JSON file:
  *
- *   node scripts/shop/add-products.mjs merch/products.json
+ *   node scripts/shop/add-products.mjs ../assets/merch/products.json
  *
  * For each product it:
  *   1. works out every size/colour's Gelato product UID and checks each one
@@ -24,17 +24,17 @@
  * "Fabric": … }, "IN": { "Fabric": … } }, India's rows over the default ones
  * (Qikink's garments differ from Gelato's). A colour can have its own "specs".
  *
- *   node scripts/shop/add-products.mjs merch/products.json --only-colours
+ *   node scripts/shop/add-products.mjs ../assets/merch/products.json --only-colours
  *       just the sizes/colours and their files (print files, mockups) of products
  *       already in the CMS; titles, prices and the main photo stay as they are
  *
- *   node scripts/shop/add-products.mjs merch/products.json --only=tee-ideas-over-small-talk
+ *   node scripts/shop/add-products.mjs ../assets/merch/products.json --only=tee-ideas-over-small-talk
  *       just the products with these slugs (comma-separated), e.g. a new one
  *
- *   node scripts/shop/add-products.mjs merch/products.json --order
+ *   node scripts/shop/add-products.mjs ../assets/merch/products.json --order
  *       just the shop order: each product's "sort" from the file
  *
- *   node scripts/shop/add-products.mjs merch/products.json --only-photos
+ *   node scripts/shop/add-products.mjs ../assets/merch/products.json --only-photos
  *       just each product's "photo" and "gallery" (its first colour); nothing else
  *       in the CMS changes and Gelato isn't asked, so GELATO_API_KEY isn't needed
  *

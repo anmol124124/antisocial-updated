@@ -8,7 +8,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { EventFeature } from '@/components/chapters/EventFeature';
 import { Countdown } from '@/components/episodes/Countdown';
 import { eventProfiles, eventSlug, getEvents } from '@/lib/content';
-import { APPLICATIONS, ORGANISING_STEPS, eventWhen, statusOf } from '@/lib/chapters';
+import { APPLICATIONS, eventWhen, statusOf } from '@/lib/chapters';
+import { getChapterGuide } from '@/lib/site-content';
 
 export const revalidate = 60;
 
@@ -42,7 +43,7 @@ const NUMBERS = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eig
  * Events that have happened sit under Past Events at the end.
  */
 export default async function EventsPage() {
-  const events = await getEvents();
+  const [events, { organisingSteps }] = await Promise.all([getEvents(), getChapterGuide()]);
   // The voices and hosts any event's people point to, fetched once for every card.
   const profiles = await eventProfiles(events.flatMap((e) => (Array.isArray(e.people) ? e.people : [])));
   const upcoming = events.filter((e) => statusOf(e.status).mode !== 'closed');
@@ -190,7 +191,7 @@ export default async function EventsPage() {
           </Reveal>
 
           <ol className="mt-12 grid gap-px overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
-            {ORGANISING_STEPS.map((step, i) => (
+            {organisingSteps.map((step, i) => (
               <li key={step.title} className="bg-ink p-7">
                 <Reveal delay={i * 60}>
                   <span className="font-serif text-2xl italic text-sand/80">{String(i + 1).padStart(2, '0')}</span>

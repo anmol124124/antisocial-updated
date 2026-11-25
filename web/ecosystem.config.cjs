@@ -32,7 +32,8 @@ module.exports = {
     {
       name,
       script: './node_modules/next/dist/bin/next',
-      args: `start -p ${port}`,
+      // Only reachable through nginx on the same machine, never directly from outside.
+      args: `start -H 127.0.0.1 -p ${port}`,
       cwd: __dirname,
       // One process: the payment lock (lib/payments.ts) and the form limits
       // (lib/rate-limit.ts) live in memory. Don't raise this without moving them to shared storage.

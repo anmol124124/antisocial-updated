@@ -180,9 +180,11 @@ collections. Details: `cms/README.md`.
 
 ### A7. The website's access token
 
-The site talks to Directus with its own token. That token's policy can **read**
-the content collections and files, and **create** submissions — nothing else.
-Nothing in the CMS is made public.
+The site talks to Directus with its own token. What that token may do is listed
+in `cms/schema/website-policy.json`: read the content and files, record forms,
+applications, bookings and orders, and update orders and booking status. It
+cannot open the admin app or read submissions and applications back. Nothing in
+the CMS is made public.
 
 > Do **not** use the Public policy for the forms. Requests that carry a token
 > never receive Public permissions in Directus, so "Public: create on
@@ -292,7 +294,7 @@ sleep 6
 curl -s -o /dev/null -w "%{http_code}\n" localhost:3012/
 curl -s localhost:3012/robots.txt
 curl -s localhost:3012/ | grep -c "AntiSocial"
-curl -s localhost:3012/guests | grep -c "Marjan"
+curl -s localhost:3012/voices | grep -c "Marjan"
 kill %1
 ```
 
@@ -405,14 +407,16 @@ only in names, ports and env values.
    sudo cp /etc/nginx/sites-available/antisocialtalks.com \
            /etc/nginx/sites-available/antisocialtalks.com.static.bak
    ```
-2. **A second Directus** in `/home/ubuntu/antisocialtalks-cms`, same
+2. **A second Directus (recommended; to decide with the team).** Today production
+   shares the staging CMS and token (`web/.env.production.example`), so a problem on
+   staging reaches live orders. A separate one: `/home/ubuntu/antisocialtalks-cms`, same
    `docker-compose.yml`, its own `.env` with production `PUBLIC_URL` and
    `CORS_ORIGIN` (both shown in `.env.example`), and a different host port if
    you keep staging running — change the `ports:` line to `127.0.0.1:8056:8055`
    and point production's `DIRECTUS_URL` at `127.0.0.1:8056`.
 3. **The site** into `/var/www/antisocialtalks.com`, using
    `.env.production.example` and a different pm2 port
-   (`PORT=3013 pm2 start ecosystem.config.cjs`). The pm2 app name comes from
+   (`PORT=3021 pm2 start ecosystem.config.cjs`, the port `deploy/nginx/antisocialtalks.com.conf` proxies to). The pm2 app name comes from
    the directory, so it will be `antisocialtalks.com` automatically.
 4. **nginx**: `deploy/nginx/antisocialtalks.com.conf`, adjusting the
    `proxy_pass` port to match. Keep certbot's existing 443 block if there is

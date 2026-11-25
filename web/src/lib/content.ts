@@ -1,5 +1,5 @@
 import 'server-only';
-import { readItems, assetUrl } from './directus';
+import { readItems } from './directus';
 import type { Profile } from './chapters';
 
 /* ────────────────────────────── types ────────────────────────────── */
@@ -370,13 +370,6 @@ export function slugify(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export function photoUrl(
-  record: { photo?: string | null; image?: string | null; mockup?: string | null },
-  opts?: Parameters<typeof assetUrl>[1],
-): string | null {
-  return assetUrl(record.photo ?? record.image ?? record.mockup ?? null, opts);
-}
-
 /** Pull a YouTube video id out of any of the URL shapes people paste. */
 export function youtubeId(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -420,18 +413,9 @@ export function topicSlugsOf(episodes: Pick<Episode, 'topics'>[]): Set<string> {
   return new Set(episodes.flatMap((e) => (e.topics || '').split(',').map((t) => slugify(t.trim())).filter(Boolean)));
 }
 
-export async function getPublishedEpisodes(limit = 100): Promise<Episode[]> {
-  const all = await getEpisodes(limit);
-  return all.filter((e) => e.status === 'published');
-}
-
 /** The one episode the home page leads with: newest published, else newest upcoming. */
 export function featuredOf(episodes: Episode[]): Episode | null {
   return episodes.find((e) => e.status === 'published') ?? episodes[0] ?? null;
-}
-
-export async function getFeaturedEpisode(): Promise<Episode | null> {
-  return featuredOf(await getEpisodes(20));
 }
 
 /** The names of the voices on an episode, as the CMS links them. */

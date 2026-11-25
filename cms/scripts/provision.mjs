@@ -20,6 +20,8 @@
  *
  *   --dry-run        show what would change, change nothing
  *   --allow-deletes  also remove collections/fields that are not in the snapshot (destroys their data)
+ *   --allow-alter    also change existing database columns (type, length, nullability, relation
+ *                    delete rules); otherwise those are listed and left alone, since they can lose data
  *   --force          apply the schema even though this Directus is a different version from the snapshot's
  *   --skip-content   steps 1 and 2 only
  *
@@ -37,13 +39,14 @@ const PASSWORD = process.env.DIRECTUS_PASSWORD;
 const args = new Set(process.argv.slice(2));
 const DRY = args.has('--dry-run');
 const ALLOW_DELETES = args.has('--allow-deletes');
+const ALLOW_ALTER = args.has('--allow-alter');
 const FORCE = args.has('--force');
 
-const unknown = [...args].filter((a) => !['--dry-run', '--allow-deletes', '--force', '--skip-content'].includes(a));
+const unknown = [...args].filter((a) => !['--dry-run', '--allow-deletes', '--allow-alter', '--force', '--skip-content'].includes(a));
 if (unknown.length || !EMAIL || !PASSWORD) {
   console.error(
     `${unknown.length ? `Unknown option: ${unknown.join(' ')}\n` : ''}` +
-      'Usage: DIRECTUS_URL=… DIRECTUS_EMAIL=… DIRECTUS_PASSWORD=… node cms/scripts/provision.mjs [--dry-run] [--allow-deletes] [--force] [--skip-content]',
+      'Usage: DIRECTUS_URL=… DIRECTUS_EMAIL=… DIRECTUS_PASSWORD=… node cms/scripts/provision.mjs [--dry-run] [--allow-deletes] [--allow-alter] [--force] [--skip-content]',
   );
   process.exit(1);
 }
@@ -76,6 +79,8 @@ async function login() {
 const isDelete = (entry) => entry.diff?.[0]?.kind === 'D' && !entry.diff[0].path;
 // Directus adds the primary key's display settings itself when it creates a collection;
 // a snapshot taken where they were never set lists them as "to delete". Not a real difference.
+/** A change to an existing column or foreign key in the database (not just its settings in the dashboard). */
+const altersColumn = (entry) => entry.diff?.some((d) => d.kind !== 'N' || d.path) && entry.diff.some((d) => d.path?.[0] === 'schema');
 const isPrimaryKeyNoise = (kind, entry) => kind === 'fields' && entry.field === 'id' && isDelete(entry);
 const label = (e) => [e.collection, e.field, e.related_collection && `→ ${e.related_collection}`].filter(Boolean).join('.');
 
@@ -99,14 +104,15 @@ async function schema() {
     for (const entry of diff.diff[kind] || []) {
       if (isPrimaryKeyNoise(kind, entry)) continue;
       if (isDelete(entry) && !ALLOW_DELETES) skipped.push(`${kind.slice(0, -1)} ${label(entry)}`);
+      else if (!isDelete(entry) && altersColumn(entry) && !ALLOW_ALTER) skipped.push(`${kind.slice(0, -1)} ${label(entry)} (database column change)`);
       else kept[kind].push(entry);
     }
   }
   for (const kind of Object.keys(kept)) {
     for (const e of kept[kind]) console.log(`  ${isDelete(e) ? '-' : e.diff[0].kind === 'N' ? '+' : '~'} ${kind.slice(0, -1)} ${label(e)}`);
   }
-  for (const s of skipped) console.log(`  · kept (not in the snapshot): ${s}`);
-  if (skipped.length) console.log('    These are left as they are. Add them to the snapshot, or re-run with --allow-deletes to remove them.');
+  for (const s of skipped) console.log(`  · left as it is: ${s}`);
+  if (skipped.length) console.log('    Not applied because they could lose data. Back up first, then re-run with --allow-deletes / --allow-alter if they are wanted.');
 
   const changes = kept.collections.length + kept.fields.length + kept.relations.length;
   if (!changes) return console.log('  = nothing to add or change');

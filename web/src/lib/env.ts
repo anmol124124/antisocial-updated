@@ -1,6 +1,9 @@
 /**
- * Central place every secret is read from, so a missing value fails with a
- * sentence that says what to do rather than `undefined` three layers down.
+ * Site-wide settings (site address, indexing, CMS connection, Gelato key), read
+ * so a missing value fails with a sentence that says what to do rather than
+ * `undefined` three layers down. Each integration reads its own settings next
+ * to its code: Stripe (stripe.ts, payments.ts), email (mailer.ts, smtp.ts),
+ * Qikink (qikink.ts), the shop switch (shop-status.ts), the order job (cron route).
  */
 
 const PLACEHOLDER = 'REPLACE_WITH_YOUR_GELATO_API_KEY';

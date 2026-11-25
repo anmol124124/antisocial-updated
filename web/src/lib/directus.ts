@@ -1,18 +1,6 @@
 import 'server-only';
 import { directusUrl, directusToken } from './env';
 
-/**
- * Minimal typed Directus REST client.
- *
- * Directus is the ONLY source of site content — there is no hardcoded copy of
- * episodes or guests anywhere in this app. Because of that, every read here is
- * deliberately forgiving: if the CMS is down, unauthenticated, or a collection
- * has not been provisioned yet, we log once and return an empty result so the
- * page renders its empty state instead of throwing a 500 at a visitor.
- */
-
-export type DirectusError = { collection: string; message: string };
-
 const revalidateSeconds = 60;
 
 /** GET /items/<collection> with the site token, cached for `revalidateSeconds`. Null on any failure. */

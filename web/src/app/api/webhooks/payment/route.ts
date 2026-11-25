@@ -27,7 +27,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid signature.' }, { status: 400 });
   }
 
-  const event = JSON.parse(rawBody) as StripeEvent;
+  let event: StripeEvent;
+  try {
+    event = JSON.parse(rawBody) as StripeEvent;
+  } catch {
+    return NextResponse.json({ error: 'Expected a JSON body.' }, { status: 400 });
+  }
   const session = event.data?.object;
   if (!SETTLES.includes(event.type || '') || session?.object !== 'checkout.session' || !session.id) {
     return NextResponse.json({ ok: true, ignored: true });

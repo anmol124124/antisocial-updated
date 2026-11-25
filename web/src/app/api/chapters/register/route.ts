@@ -138,11 +138,13 @@ export async function POST(request: Request) {
   if (price) {
     try {
       const registration = await insertItem('event_registrations', row);
-      // Two people can pass the check above at the same moment. Counting again with this
-      // booking in place settles it: whoever tipped it over the capacity is released.
-      const after = await balance(event);
-      if (after !== null && after < 0) {
-        await updateItem('event_registrations', registration, { status: 'cancelled', payment_status: 'not_required' });
+      // Two people can pass the check above at the same moment. Once both bookings are in,
+      // the earlier one keeps its places and only the one that went over the capacity is
+      // released, so the last place is never lost to both.
+      if (await overCapacity(event, registration)) {
+        await updateItem('event_registrations', registration, { status: 'cancelled' }).catch((err) =>
+          console.error('[chapters/register] could not release overbooked hold', registration, err),
+        );
         return NextResponse.json({ error: 'This event is now full.' }, { status: 409 });
       }
       const payment = await startPayment({
@@ -304,17 +306,33 @@ async function acceptInvitation(body: Record<string, unknown>) {
 
 /** Places still free, or null when the event has no capacity set. */
 async function placesLeft(event: ChapterEvent): Promise<number | null> {
-  const left = await balance(event);
-  return left === null ? null : Math.max(0, left);
-}
-
-/** Capacity minus the places taken or held; below zero when overbooked. Null: no limit. */
-async function balance(event: ChapterEvent): Promise<number | null> {
   const capacity = Number(event.capacity);
   if (!capacity || capacity < 1) return null;
+  const taken = (await activeBookings(event)).reduce((sum, r) => sum + places(r), 0);
+  return Math.max(0, capacity - taken);
+}
 
+/**
+ * Whether this booking is beyond the capacity once every booking made before it
+ * (by time, then id) has its places. Only the bookings that went over are released.
+ */
+async function overCapacity(event: ChapterEvent, registration: number): Promise<boolean> {
+  const capacity = Number(event.capacity);
+  if (!capacity || capacity < 1) return false;
+  let taken = 0;
+  for (const row of await activeBookings(event)) {
+    taken += places(row);
+    if (row.id === registration) return taken > capacity;
+  }
+  return false;
+}
+
+const places = (row: { attendees: number | null }) => Number(row.attendees) || 1;
+
+/** Bookings that hold places: confirmed ones and unpaid ones still inside the payment window, oldest first. */
+async function activeBookings(event: ChapterEvent) {
   const holdSince = new Date(Date.now() - HOLD_MINUTES * 60_000).toISOString();
-  const rows = await queryItems<{ attendees: number | null }>('event_registrations', {
+  return queryItems<{ id: number; attendees: number | null }>('event_registrations', {
     filter: JSON.stringify({
       _and: [
         { event: { _eq: event.id } },
@@ -327,9 +345,8 @@ async function balance(event: ChapterEvent): Promise<number | null> {
         },
       ],
     }),
-    fields: 'attendees',
+    fields: 'id,attendees',
+    sort: 'date_created,id',
     limit: '-1',
   });
-  const taken = rows.reduce((sum, r) => sum + (Number(r.attendees) || 1), 0);
-  return capacity - taken;
 }

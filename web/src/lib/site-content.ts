@@ -52,12 +52,14 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
 /**
  * Who visitors write to about an event: the event's own address, else the
- * site's (Site settings → Contact email), else the team inbox (TEAM_NOTIFY_EMAIL).
+ * site's (Site settings → Contact email), else the team inbox (TEAM_NOTIFY_EMAIL),
+ * else the mailbox the site sends from (MAIL_FROM).
  */
 export async function contactEmailFor(event?: { contact_email?: string | null } | null): Promise<string> {
   const own = event?.contact_email?.trim();
   if (own) return own;
-  return (await getSiteSettings()).contactEmail || teamInbox() || '';
+  const sender = /<([^>]+)>/.exec(process.env.MAIL_FROM || '')?.[1] || process.env.MAIL_FROM?.trim() || '';
+  return (await getSiteSettings()).contactEmail || teamInbox() || sender;
 }
 
 /** The YouTube channel, for "Watch on YouTube" buttons. Null hides them. */
@@ -244,6 +246,10 @@ export type ChapterGuide = {
   joinActions: Linked[];
   /** The guide pages, linked from the Chapters hub. */
   guides: Linked[];
+  /** "From an Idea to a City Conversation": on Events and beside the organiser form. */
+  organisingSteps: TitledText[];
+  /** "What the Global Team Provides" on Become a Chapter Leader. */
+  teamSupport: TitledText[];
 };
 
 type ChapterGuideRow = Partial<{
@@ -264,6 +270,8 @@ type ChapterGuideRow = Partial<{
   speaker_qualities: string | null;
   join_actions: Linked[] | null;
   guides: Linked[] | null;
+  organising_steps: TitledText[] | null;
+  team_support: TitledText[] | null;
 }>;
 
 const list = <T,>(value: T[] | null | undefined): T[] => (Array.isArray(value) ? value : []);
@@ -288,5 +296,7 @@ export async function getChapterGuide(): Promise<ChapterGuide> {
     speakerQualities: g.speaker_qualities || '',
     joinActions: list(g.join_actions),
     guides: list(g.guides),
+    organisingSteps: list(g.organising_steps),
+    teamSupport: list(g.team_support),
   };
 }

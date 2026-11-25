@@ -40,7 +40,8 @@ export async function GET(
 
   const base = directusUrl();
   if (!base) {
-    return new Response('DIRECTUS_URL is not set.', { status: 503 });
+    console.error('[assets] DIRECTUS_URL is not set');
+    return new Response('Unavailable', { status: 503 });
   }
 
   const incoming = new URL(request.url).searchParams;
@@ -95,13 +96,13 @@ export async function GET(
     'X-Content-Type-Options': 'nosniff',
     'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
   });
-  if (isVideo) {
-    headers.set('Accept-Ranges', 'bytes');
-    for (const name of ['content-length', 'content-range']) {
-      const value = upstream.headers.get(name);
-      if (value) headers.set(name, value);
-    }
+  if (isVideo) headers.set('Accept-Ranges', 'bytes');
+  // A partial answer stays partial (206 + Content-Range), so it is never cached as the whole file.
+  const partial = upstream.status === 206;
+  for (const name of partial ? ['content-length', 'content-range'] : ['content-length']) {
+    const value = upstream.headers.get(name);
+    if (value) headers.set(name, value);
   }
 
-  return new Response(upstream.body, { status: isVideo && upstream.status === 206 ? 206 : 200, headers });
+  return new Response(upstream.body, { status: partial ? 206 : 200, headers });
 }

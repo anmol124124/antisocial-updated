@@ -5,8 +5,8 @@ export const runtime = 'nodejs';
 export const revalidate = 3600;
 
 /**
- * GET /api/share-image — the picture a shared link shows when its page has no
- * picture of its own (SHARE_IMAGE in lib/meta.ts). The file is chosen in the
+ * GET /og-image.jpg (rewritten here in next.config.ts): the picture a shared
+ * link shows when its page has no picture of its own (SHARE_IMAGE in lib/meta.ts). The file is chosen in the
  * CMS (Site settings → Share image) and served here as a 1200 × 630 JPEG, so
  * every page can point at one stable address and changing the picture needs
  * no deploy.
