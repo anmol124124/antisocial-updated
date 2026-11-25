@@ -2,7 +2,7 @@
 
 The admin panel where the team edits the website: episodes, guests, hosts, chapters,
 events, shop products, the site settings (contact email, social links, share picture),
-the home page pictures and topics, About values, the community forms' wording, the
+the home page (hero lines, introduction, topics, teaser clip), About values, the community forms' wording, the
 Roadshow stops and the Chapters guide. It also receives the forms, bookings and orders.
 
 Visitors never talk to Directus. The website reads and writes it server-side with its
@@ -35,8 +35,10 @@ DIRECTUS_URL=http://127.0.0.1:8055 DIRECTUS_EMAIL=<admin> DIRECTUS_PASSWORD=<pas
    the CMS that is not in the snapshot is listed and kept (`--allow-deletes` to remove it).
 2. **Website permissions**: adds or updates the rules in `website-policy.json`; extra
    rules are listed, never removed.
-3. **Starting content**: fills a collection only while it is still **empty**, so nothing
-   the team has edited is ever overwritten.
+3. **Starting content**: a list (e.g. Home cards) is filled only while it is still **empty**;
+   in a settings record (Site settings, Home page, Chapters guide) only the fields that are
+   still **empty** are filled, e.g. a field added in a later release. Nothing the team has
+   written is ever overwritten.
 
 The snapshot was taken on Directus 11.17.4. On a different version the script stops and
 says so; upgrade the container (back up first, below) or pass `--force`.

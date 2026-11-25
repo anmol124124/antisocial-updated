@@ -9081,96 +9081,6 @@
     },
     {
       "collection": "home_page",
-      "field": "hero_image",
-      "type": "uuid",
-      "meta": {
-        "collection": "home_page",
-        "conditions": null,
-        "display": null,
-        "display_options": null,
-        "field": "hero_image",
-        "group": null,
-        "hidden": false,
-        "interface": "file-image",
-        "note": "The large portrait at the top of the home page.",
-        "options": null,
-        "readonly": false,
-        "required": false,
-        "searchable": true,
-        "sort": 2,
-        "special": [
-          "file"
-        ],
-        "translations": null,
-        "validation": null,
-        "validation_message": null,
-        "width": "half"
-      },
-      "schema": {
-        "name": "hero_image",
-        "table": "home_page",
-        "data_type": "uuid",
-        "default_value": null,
-        "max_length": null,
-        "numeric_precision": null,
-        "numeric_scale": null,
-        "is_nullable": true,
-        "is_unique": false,
-        "is_indexed": false,
-        "is_primary_key": false,
-        "is_generated": false,
-        "generation_expression": null,
-        "has_auto_increment": false,
-        "foreign_key_table": "directus_files",
-        "foreign_key_column": "id"
-      }
-    },
-    {
-      "collection": "home_page",
-      "field": "hero_image_alt",
-      "type": "string",
-      "meta": {
-        "collection": "home_page",
-        "conditions": null,
-        "display": null,
-        "display_options": null,
-        "field": "hero_image_alt",
-        "group": null,
-        "hidden": false,
-        "interface": "input",
-        "note": "What the hero picture shows, in words.",
-        "options": null,
-        "readonly": false,
-        "required": false,
-        "searchable": true,
-        "sort": 3,
-        "special": null,
-        "translations": null,
-        "validation": null,
-        "validation_message": null,
-        "width": "half"
-      },
-      "schema": {
-        "name": "hero_image_alt",
-        "table": "home_page",
-        "data_type": "character varying",
-        "default_value": null,
-        "max_length": 255,
-        "numeric_precision": null,
-        "numeric_scale": null,
-        "is_nullable": true,
-        "is_unique": false,
-        "is_indexed": false,
-        "is_primary_key": false,
-        "is_generated": false,
-        "generation_expression": null,
-        "has_auto_increment": false,
-        "foreign_key_table": null,
-        "foreign_key_column": null
-      }
-    },
-    {
-      "collection": "home_page",
       "field": "teaser_video",
       "type": "uuid",
       "meta": {
@@ -9355,35 +9265,37 @@
     },
     {
       "collection": "home_page",
-      "field": "question_image",
-      "type": "uuid",
+      "field": "hero_lines",
+      "type": "json",
       "meta": {
         "collection": "home_page",
         "conditions": null,
         "display": null,
         "display_options": null,
-        "field": "question_image",
+        "field": "hero_lines",
         "group": null,
         "hidden": false,
-        "interface": "file-image",
-        "note": "The picture in \"The question nobody asks\".",
-        "options": null,
+        "interface": "tags",
+        "note": "The lines the top of the home page types out, one after another, then starts again. Press Enter after each.",
+        "options": {
+          "alphabetize": false
+        },
         "readonly": false,
         "required": false,
         "searchable": true,
-        "sort": 9,
+        "sort": 1,
         "special": [
-          "file"
+          "cast-json"
         ],
         "translations": null,
         "validation": null,
         "validation_message": null,
-        "width": "half"
+        "width": "full"
       },
       "schema": {
-        "name": "question_image",
+        "name": "hero_lines",
         "table": "home_page",
-        "data_type": "uuid",
+        "data_type": "json",
         "default_value": null,
         "max_length": null,
         "numeric_precision": null,
@@ -9395,41 +9307,41 @@
         "is_generated": false,
         "generation_expression": null,
         "has_auto_increment": false,
-        "foreign_key_table": "directus_files",
-        "foreign_key_column": "id"
+        "foreign_key_table": null,
+        "foreign_key_column": null
       }
     },
     {
       "collection": "home_page",
-      "field": "question_image_alt",
-      "type": "string",
+      "field": "intro",
+      "type": "text",
       "meta": {
         "collection": "home_page",
         "conditions": null,
         "display": null,
         "display_options": null,
-        "field": "question_image_alt",
+        "field": "intro",
         "group": null,
         "hidden": false,
-        "interface": "input",
-        "note": "What that picture shows, in words.",
+        "interface": "input-multiline",
+        "note": "The introduction under the top section. Leave an empty line between paragraphs; the first is set larger.",
         "options": null,
         "readonly": false,
         "required": false,
         "searchable": true,
-        "sort": 10,
+        "sort": 2,
         "special": null,
         "translations": null,
         "validation": null,
         "validation_message": null,
-        "width": "half"
+        "width": "full"
       },
       "schema": {
-        "name": "question_image_alt",
+        "name": "intro",
         "table": "home_page",
-        "data_type": "character varying",
+        "data_type": "text",
         "default_value": null,
-        "max_length": 255,
+        "max_length": null,
         "numeric_precision": null,
         "numeric_scale": null,
         "is_nullable": true,
@@ -13955,31 +13867,6 @@
     },
     {
       "collection": "home_page",
-      "field": "hero_image",
-      "related_collection": "directus_files",
-      "meta": {
-        "junction_field": null,
-        "many_collection": "home_page",
-        "many_field": "hero_image",
-        "one_allowed_collections": null,
-        "one_collection": "directus_files",
-        "one_collection_field": null,
-        "one_deselect_action": "nullify",
-        "one_field": null,
-        "sort_field": null
-      },
-      "schema": {
-        "table": "home_page",
-        "column": "hero_image",
-        "foreign_key_table": "directus_files",
-        "foreign_key_column": "id",
-        "constraint_name": "home_page_hero_image_foreign",
-        "on_update": "NO ACTION",
-        "on_delete": "SET NULL"
-      }
-    },
-    {
-      "collection": "home_page",
       "field": "teaser_video",
       "related_collection": "directus_files",
       "meta": {
@@ -14024,31 +13911,6 @@
         "foreign_key_table": "directus_files",
         "foreign_key_column": "id",
         "constraint_name": "home_page_teaser_poster_foreign",
-        "on_update": "NO ACTION",
-        "on_delete": "SET NULL"
-      }
-    },
-    {
-      "collection": "home_page",
-      "field": "question_image",
-      "related_collection": "directus_files",
-      "meta": {
-        "junction_field": null,
-        "many_collection": "home_page",
-        "many_field": "question_image",
-        "one_allowed_collections": null,
-        "one_collection": "directus_files",
-        "one_collection_field": null,
-        "one_deselect_action": "nullify",
-        "one_field": null,
-        "sort_field": null
-      },
-      "schema": {
-        "table": "home_page",
-        "column": "question_image",
-        "foreign_key_table": "directus_files",
-        "foreign_key_column": "id",
-        "constraint_name": "home_page_question_image_foreign",
         "on_update": "NO ACTION",
         "on_delete": "SET NULL"
       }

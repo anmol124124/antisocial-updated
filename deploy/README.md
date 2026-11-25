@@ -175,7 +175,7 @@ node scripts/provision.mjs
 
 Creates every collection the site uses (`schema/snapshot.json`), the website's
 permissions (`schema/website-policy.json`) and the starting site settings and
-page copy (`seed/`). Safe to re-run: it never deletes, and only fills empty
+page copy (`seed/`). Safe to re-run: it never deletes, and only fills what is still empty
 collections. Details: `cms/README.md`.
 
 ### A7. The website's access token

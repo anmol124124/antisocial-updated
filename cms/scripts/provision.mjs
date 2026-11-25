@@ -12,7 +12,8 @@
  *                   extra rules are listed, never removed.
  *   3. Content      cms/seed/content.json: starting content for the site-wide settings,
  *                   home page, About values, community forms, Roadshow and Chapters guide.
- *                   A collection is only filled while it is still EMPTY, so edits made in
+ *                   A list collection is only filled while it is still EMPTY; in a settings
+ *                   record only the fields that are still empty are filled. Edits made in
  *                   the CMS are never overwritten.
  *
  *   DIRECTUS_URL=http://127.0.0.1:8055 DIRECTUS_EMAIL=<admin> DIRECTUS_PASSWORD=<password> \
@@ -179,6 +180,7 @@ async function withFiles(row) {
   return out;
 }
 
+const isEmpty = (v) => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length);
 const exists = (collection) => api(`/collections/${collection}`).then(() => true, () => false);
 
 async function content() {
@@ -188,11 +190,13 @@ async function content() {
 
   for (const [collection, values] of Object.entries(seed.singletons)) {
     if (DRY && !(await exists(collection))) { console.log(`  + ${collection} (after the schema step)`); continue; }
-    const have = await api(`/items/${collection}`);
-    const filled = have && Object.entries(have).some(([k, v]) => k !== 'id' && v !== null && v !== '' && !(Array.isArray(v) && !v.length));
-    if (filled) { console.log(`  = ${collection} (already filled in, left as it is)`); continue; }
-    console.log(`  + ${collection}`);
-    if (!DRY) await api(`/items/${collection}`, { method: 'PATCH', body: await withFiles(values) });
+    // Settings records: only the fields that are still empty get the starting value (e.g. a field
+    // added in a later release); anything the team has filled in is left exactly as it is.
+    const have = (await api(`/items/${collection}`)) || {};
+    const empty = Object.fromEntries(Object.entries(values).filter(([k]) => isEmpty(have[k])));
+    if (!Object.keys(empty).length) { console.log(`  = ${collection} (already filled in, left as it is)`); continue; }
+    console.log(`  + ${collection}: ${Object.keys(empty).join(', ')}`);
+    if (!DRY) await api(`/items/${collection}`, { method: 'PATCH', body: await withFiles(empty) });
   }
 
   for (const [collection, rows] of Object.entries(seed.collections)) {

@@ -47,12 +47,12 @@ export function NewsletterForm() {
           required
           autoComplete="email"
           placeholder="Your email address"
-          className="h-11 min-w-0 shrink-0 rounded-full border border-white/20 bg-white/5 px-5 sm:flex-1 sm:shrink text-sm text-white placeholder:text-white/35 transition focus:border-sand focus:bg-white/10 focus:outline-none"
+          className="h-11 min-w-0 shrink-0 rounded-full border border-white/20 bg-white/5 px-5 sm:flex-1 sm:shrink text-sm text-white placeholder:text-white/35 transition focus:border-signal focus:bg-white/10 focus:outline-none"
         />
         <button
           type="submit"
           disabled={state === 'sending'}
-          className="h-11 shrink-0 rounded-full bg-sand px-6 text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-ink transition hover:bg-sand-light disabled:opacity-60"
+          className="h-11 shrink-0 rounded-full bg-white px-6 text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-ink transition hover:bg-signal hover:text-white disabled:opacity-60"
         >
           {state === 'sending' ? 'Sending' : 'Subscribe'}
         </button>

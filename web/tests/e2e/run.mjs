@@ -316,33 +316,38 @@ async function runChecks(mode, cms) {
     expectAll(problems, `of ${assets.size} assets broken`);
   });
 
-  await check('home: the existing design with the brief’s words, and the Chapters map section', () => {
+  await check('home: the redesign brief (Nov 2026): sections, backgrounds, words and buttons', () => {
     const t = text('/');
     const home = html('/');
 
-    // The order of the sections, each on its usual background; Chapters (white) sits after the voices.
-    const order = ['hero-title', 'featured-title', 'guests-title', 'chapters-title', 'question-title', 'topics-title', 'Explore AntiSocialTalks', 'final-title'];
+    // The brief's order and background rhythm: black hero / intro / episode / voices, white
+    // Chapters, black topics, light exploration cards, black closing call.
+    const order = ['hero-title', 'About AntiSocial Talks', 'featured-title', 'guests-title', 'chapters-title', 'topics-title', 'explore-title', 'final-title'];
     const at = order.map((id) => home.indexOf(id.includes(' ') ? `aria-label="${id}"` : `aria-labelledby="${id}"`));
     expect(at.every((i, k) => i > 0 && (k === 0 || i > at[k - 1])), `home sections out of order: ${order.map((id, k) => `${id}@${at[k]}`).join(', ')}`);
     const sectionOf = (k) => home.slice(home.lastIndexOf('<section', at[k]), at[k + 1] ? home.lastIndexOf('<section', at[k + 1]) : undefined);
-    const bg = (k) => /<section[^>]*class="[^"]*\b(bg-ink|bg-white|bg-cream-deep|bg-cream)\b/.exec(sectionOf(k))?.[1];
+    const bg = (k) => /<section[^>]*class="[^"]*\b(bg-ink|bg-white|bg-paper|bg-cream-deep|bg-cream)\b/.exec(sectionOf(k))?.[1];
     const backgrounds = order.map((_, k) => bg(k));
-    expect(JSON.stringify(backgrounds) === JSON.stringify(['bg-ink', 'bg-cream', 'bg-cream', 'bg-white', 'bg-cream-deep', 'bg-ink', 'bg-cream', 'bg-ink']), `home backgrounds: ${backgrounds}`);
+    expect(JSON.stringify(backgrounds) === JSON.stringify(['bg-ink', 'bg-ink', 'bg-ink', 'bg-ink', 'bg-white', 'bg-ink', 'bg-paper', 'bg-ink']), `home backgrounds: ${backgrounds}`);
     expect(!home.includes('aria-label="Mission and vision"'), 'Mission and Vision is still on the home page');
+    expect(!home.includes('question-title'), 'The AntiSocial Question is no longer part of the home page');
 
-    // Hero: the portrait and headline as before, the client's introduction, Listen Now and Start a Chapter (to /chapters).
+    // Hero: no photograph, the four lines (typed in turn; all of them for screen readers), Listen Now and Start a Chapter (to /chapters).
     const hero = sectionOf(0);
     expect(/They called\s+us\s+AntiSocial\.\s+We decided to\s+talk\./.test(textOf(hero)) && textOf(hero).includes('Not anti-society. Anti-silence.'), 'the hero lines are missing');
-    // next/image puts the CMS address inside its own (URL-encoded) one.
-    expect(hero.includes(encodeURIComponent(`/api/assets/${FILES.photo}`)), 'the hero portrait (Home page → Hero image in the CMS) is missing');
-    for (const s of ['AntiSocial Talks is a global conversation and media platform', 'for honest conversations about the issues', 'beyond the screen and into communities around the world.']) {
-      expect(textOf(hero).includes(s), `hero introduction: missing “${s}”`);
-    }
+    expect(!/<img\b/.test(hero), 'the hero should have no photograph');
     expect(/href="\/episodes"[^>]*>[\s\S]*?Listen Now/.test(hero) && /href="\/chapters"[^>]*>Start a Chapter/.test(hero), 'hero buttons: Listen Now to /episodes, Start a Chapter to /chapters');
     expect(!textOf(hero).includes('Join the Community'), 'the hero still offers Join the Community');
 
+    // Introduction: its own section directly below the hero, the client's three paragraphs (Home page → Introduction).
+    const intro = sectionOf(1);
+    for (const s of ['AntiSocial Talks is a global conversation and media platform', 'for honest conversations about the issues', 'beyond the screen and into communities around the world.']) {
+      expect(textOf(intro).includes(s), `introduction: missing “${s}”`);
+      expect(!textOf(hero).includes(s), 'the introduction belongs below the hero, not inside it');
+    }
+
     // Latest Episode: the line, the title (to its page), Watch Episode (the video) and Subscribe on YouTube.
-    const episode = sectionOf(1);
+    const episode = sectionOf(2);
     for (const s of ['Latest Episode', 'The conversations people usually avoid.', 'Second Test Episode | AntiSocialTalks Ep. 2', 'Released 4 November 2026', 'With Abdu Rozik', 'Watch Episode', 'Subscribe on YouTube']) {
       expect(textOf(episode).includes(s), `home episode: missing “${s}”`);
     }
@@ -352,30 +357,30 @@ async function runChecks(mode, cms) {
     for (const s of ['Episode 01: The AntiSocial Question', 'Out 1 January', 'Knock knock.']) expect(!t.includes(s), `home still shows “${s}”`);
 
     // Voices.
-    for (const s of ['Abdu Rozik', 'Gauri G', 'to challenge perspectives and explore the stories behind the headlines.']) expect(textOf(sectionOf(2)).includes(s), `voices: missing “${s}”`);
+    for (const s of ['Meet the Voices', 'They’ve been interviewed before. Not like this.', 'Abdu Rozik', 'Gauri G', 'to challenge perspectives and explore the stories behind the headlines.']) expect(textOf(sectionOf(3)).includes(s), `voices: missing “${s}”`);
+    expect(sectionOf(3).includes('href="/voices"'), 'voices: Meet the Voices button');
     expect(!t.includes('Hidden Guest'), 'a draft guest is shown');
 
     // Chapters: the map, Explore Chapters and Start a Chapter (to /chapters/start).
-    const chapters = sectionOf(3);
+    const chapters = sectionOf(4);
     expect(textOf(chapters).includes('Beyond the Screen.') && textOf(chapters).includes('Different cities, different voices, one conversation.'), 'the Chapters words are missing');
     expect(chapters.includes('href="/chapters"') && chapters.includes('href="/chapters/start"'), 'Chapters buttons: Explore to /chapters, Start to /chapters/start');
     expect(/role="img" aria-label="World map[^"]*Dubai, India and the USA"/.test(chapters), 'the Chapters map is missing');
 
-    // The AntiSocial Question stays.
-    expect(textOf(sectionOf(4)).includes('What is something you believe that most people don’t?'), 'The AntiSocial Question is missing');
-
     // Topics: the ten from the brief, no descriptions, not links.
     const topics = textOf(sectionOf(5));
+    expect(topics.includes('Big topics. Deeper conversations.'), 'topics heading');
     for (const s of ['Nothing is off the table.', 'Human', 'Health', 'Science', 'Technology', 'Business', 'Society', 'The Future', 'Identity', 'Money', 'Belief']) expect(topics.includes(s), `topics: missing “${s}”`);
     expect(!topics.includes('Most conversations end where the answer begins'), 'topics: the old paragraph is still there');
     expect(!home.includes('href="/episodes?topic='), 'home topics should not link to episodes');
 
     // The three cards, the closing call, the footer lines.
     const cards = sectionOf(6);
+    for (const s of ['AntiSocial Stories', 'Stories from people who rarely get asked.', 'Explore Stories', 'AntiSocial Events', 'Explore Events', 'The AntiSocial Shop', 'Wear the conversation.', 'Shop the Drop']) expect(textOf(cards).includes(s), `Explore cards: missing “${s}”`);
     expect(['href="/stories"', 'href="/events"', 'href="/shop"'].every((h) => cards.includes(h)) && !cards.includes('href="/chapters"'), 'Explore cards: Stories, Events and Shop only');
     expect(t.includes('Socially Unfiltered.') && !t.includes('Socially Unfiltered!'), 'Events card line');
     const final = sectionOf(7).split('<footer')[0];
-    expect(textOf(final).includes('The next conversation could start with you.'), 'the closing line is missing');
+    expect(textOf(final).includes('Ready to speak up?') && textOf(final).includes('The next conversation could start with you.'), 'the closing words are missing');
     for (const [label, href] of [['Tell Your Story', '/community/story'], ['Suggest a Speaker', '/community/speaker'], ['Start a Chapter', '/chapters']]) {
       expect(new RegExp(`href="${href}"[^>]*>${label}`).test(final), `closing call: “${label}” should open ${href}`);
     }

@@ -2,7 +2,7 @@ import { Hero } from '@/components/home/Hero';
 import { FeaturedEpisode } from '@/components/home/FeaturedEpisode';
 import { GuestsPreview } from '@/components/home/GuestsPreview';
 import { ChaptersFeature } from '@/components/home/ChaptersFeature';
-import { TheQuestion } from '@/components/home/TheQuestion';
+import { Intro } from '@/components/home/Intro';
 import { Topics } from '@/components/home/Topics';
 import { Pillars } from '@/components/home/Pillars';
 import { FinalCta } from '@/components/home/FinalCta';
@@ -28,7 +28,7 @@ export default async function HomePage() {
   // One round of reads for the whole page, in parallel.
   const [episodes, guests, voices, home, pillars, settings] = await Promise.all([
     getEpisodes(),
-    getHomeGuests(3),
+    getHomeGuests(5),
     getGuests(200),
     getHomePage(),
     getHomePillars(),
@@ -38,11 +38,12 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero image={home.hero} social={settings.social} topics={home.topics} />
+      {/* The order and backgrounds of the homepage brief: black, black, black, black, white, black, light, black. */}
+      <Hero lines={home.heroLines} />
+      <Intro paragraphs={home.intro} />
       <FeaturedEpisode episode={episode} guests={guestsOf(episode, voices)} youtube={youtubeChannel(settings)} teaser={home.teaser} />
       <GuestsPreview guests={guests} />
       <ChaptersFeature />
-      <TheQuestion image={home.question} />
       <Topics topics={home.topics} />
       <Pillars pillars={pillars} />
       <FinalCta />

@@ -2,8 +2,10 @@
 
 /* ══════════════════════════════════════════════════════════════════
    AntiSocialTalks design tokens
-   Editorial, high-contrast, warm neutrals. Black is the brand colour;
-   sand (#c8a67f) is the single accent and is used sparingly.
+   Editorial, high-contrast. Black is the brand colour.
+   Signal red (#e5141b) is the accent of the brand as it appears on
+   Instagram: highlighted words, thin bars, the cursor. Used sparingly.
+   Sand (#c8a67f) remains the accent of the pages not yet refreshed.
    ══════════════════════════════════════════════════════════════════ */
 
 @theme {
@@ -17,7 +19,12 @@
   --color-sand-deep: #a38258;
   --color-line: rgba(0, 0, 0, 0.1);
   --color-line-light: rgba(255, 255, 255, 0.14);
+  --color-signal: #e5141b;
+  --color-signal-deep: #b80f15;
+  --color-paper: #f4f3f0;
 
+  /* Heavy grotesk for headlines, the weight the brand uses on Instagram. */
+  --font-display: "Archivo", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-hand: "Caveat", "Bradley Hand", "Segoe Script", cursive;
   --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
@@ -35,6 +42,10 @@
   @keyframes marquee {
     from { transform: translateX(0); }
     to   { transform: translateX(-50%); }
+  }
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
   }
   @keyframes pulse-dot {
     0%, 100% { opacity: 1; transform: scale(1); }
@@ -91,6 +102,67 @@
     font-weight: 700;
     line-height: 0.98;
     letter-spacing: -0.035em;
+  }
+
+  /* The refreshed pages' headline: heavy, tight, confident. */
+  .headline {
+    font-family: var(--font-display);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
+  /* Small uppercase label with a red bar, the refreshed pages' section marker. */
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+  .kicker::before {
+    content: "";
+    width: 1.75rem;
+    height: 2px;
+    background: var(--color-signal);
+  }
+
+  /*
+   * Typewriter glitch: for a moment after each line changes, the text splits
+   * into a red and a white copy that jump sideways. Restrained, and off for
+   * anyone who prefers reduced motion.
+   */
+  .glitch { position: relative; }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .glitch[data-glitch="true"]::before {
+    color: var(--color-signal);
+    animation: glitch-a 0.32s steps(2, end) both;
+  }
+  .glitch[data-glitch="true"]::after {
+    color: #fff;
+    animation: glitch-b 0.32s steps(2, end) both;
+  }
+  @keyframes glitch-a {
+    0%   { opacity: 0.85; transform: translate(-4px, 0); clip-path: inset(10% 0 55% 0); }
+    50%  { opacity: 0.85; transform: translate(3px, 0);  clip-path: inset(60% 0 8% 0); }
+    100% { opacity: 0;    transform: none;               clip-path: inset(0 0 100% 0); }
+  }
+  @keyframes glitch-b {
+    0%   { opacity: 0.55; transform: translate(3px, 0);  clip-path: inset(40% 0 35% 0); }
+    50%  { opacity: 0.55; transform: translate(-2px, 0); clip-path: inset(5% 0 80% 0); }
+    100% { opacity: 0;    transform: none;               clip-path: inset(0 0 100% 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glitch::before, .glitch::after { display: none; }
   }
 
   /* Small uppercase label above a heading. */

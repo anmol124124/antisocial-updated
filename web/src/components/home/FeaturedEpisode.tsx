@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Container } from '@/components/ui/Container';
-import { Eyebrow } from '@/components/ui/Eyebrow';
 import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 import { slugify, youtubeId, type Episode } from '@/lib/content';
@@ -42,8 +41,8 @@ function KnockKnock() {
           key={text}
           className={
             kind === 'call'
-              ? 'text-[clamp(1.125rem,1.8vw,1.375rem)] font-bold leading-snug tracking-tight text-ink'
-              : 'pl-6 font-serif text-[clamp(1.125rem,1.8vw,1.375rem)] italic leading-snug text-sand-deep'
+              ? 'font-display text-[clamp(1.25rem,2vw,1.625rem)] font-bold leading-snug tracking-tight text-white'
+              : 'pl-6 text-[clamp(1.125rem,1.8vw,1.375rem)] italic leading-snug text-white/55'
           }
         >
           {text}
@@ -67,13 +66,13 @@ export function FeaturedEpisode({
 }) {
   if (!episode) {
     return (
-      <section className="bg-cream py-20 lg:py-28">
+      <section className="border-t border-white/10 bg-ink py-20 text-white lg:py-28">
         <Container>
-          <Eyebrow>Episode 01</Eyebrow>
+          <p className="kicker mb-6 text-white/55">Episode 01</p>
           <KnockKnock />
           <div className="mt-8">
             {youtube && (
-              <Button href={youtube} external variant="outline-dark" arrow>
+              <Button href={youtube} external variant="outline-light" arrow>
                 Subscribe on YouTube
               </Button>
             )}
@@ -95,40 +94,39 @@ export function FeaturedEpisode({
       : null;
 
   return (
-    <section id="featured" aria-labelledby="featured-title" className="bg-cream py-20 lg:py-28">
+    <section id="featured" aria-labelledby="featured-title" className="border-t border-white/10 bg-ink py-20 text-white lg:py-28">
       <Container>
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
-            <Eyebrow>{published ? 'Latest Episode' : 'Episode 01'}</Eyebrow>
+            <p className="kicker mb-6 text-white/55">{published ? 'Latest Episode' : 'Episode 01'}</p>
             {published ? (
               <>
-                <h2 id="featured-title" className="display text-[clamp(2rem,4.5vw,3.25rem)]">
-                  The conversations people{' '}
-                  <span className="font-serif font-normal italic text-sand-deep">usually avoid.</span>
+                <h2 id="featured-title" className="headline text-[clamp(2.25rem,5vw,3.75rem)]">
+                  The conversations people <span className="text-signal">usually avoid.</span>
                 </h2>
-                <h3 className="mt-6 text-[clamp(1.25rem,2vw,1.5rem)] font-bold leading-snug tracking-tight">
-                  <Link href={`/episodes/${slug}`} className="transition-colors hover:text-sand-deep">
+                <h3 className="mt-7 text-[clamp(1.125rem,1.8vw,1.375rem)] font-semibold leading-snug tracking-tight text-white/90">
+                  <Link href={`/episodes/${slug}`} className="transition-colors hover:text-signal">
                     {episode.title}
                   </Link>
                 </h3>
                 {(released || guests.length > 0) && (
-                  <p className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium uppercase tracking-[0.12em] text-ink-mute">
+                  <p className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium uppercase tracking-[0.14em] text-white/50">
                     {released && <span>Released {released}</span>}
-                    {released && guests.length > 0 && <span aria-hidden className="h-1 w-1 rounded-full bg-sand" />}
+                    {released && guests.length > 0 && <span aria-hidden className="h-1 w-1 rounded-full bg-signal" />}
                     {guests.length > 0 && <span>With {listOf(guests)}</span>}
                   </p>
                 )}
                 {episode.description && (
-                  <p className="mt-6 max-w-lg text-[0.9375rem] leading-relaxed text-ink-mute">
+                  <p className="mt-6 max-w-lg text-[0.9375rem] leading-relaxed text-white/65">
                     {episode.description}
                   </p>
                 )}
               </>
             ) : countdownTo ? (
               <>
-                <h2 id="featured-title" className="display text-[clamp(2rem,4.5vw,3.25rem)]">
+                <h2 id="featured-title" className="headline text-[clamp(2.25rem,5vw,3.75rem)]">
                   Episode 01.{' '}
-                  <span className="font-serif font-normal italic text-sand-deep">
+                  <span className="text-signal">
                     Out {new Date(countdownTo).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'Asia/Kolkata' })}.
                   </span>
                 </h2>
@@ -151,28 +149,28 @@ export function FeaturedEpisode({
               {published ? (
                 <>
                   {episode.youtube_url ? (
-                    <Button href={episode.youtube_url} external variant="solid-dark" arrow>
+                    <Button href={episode.youtube_url} external variant="solid-light" arrow>
                       Watch Episode
                     </Button>
                   ) : (
-                    <Button href={`/episodes/${slug}`} variant="solid-dark" arrow>
+                    <Button href={`/episodes/${slug}`} variant="solid-light" arrow>
                       Watch Episode
                     </Button>
                   )}
                   {youtube && (
-                    <Button href={youtube} external variant="outline-dark">
+                    <Button href={youtube} external variant="outline-light">
                       Subscribe on YouTube
                     </Button>
                   )}
                 </>
               ) : (
                 <>
-                  <span className="inline-flex h-11 items-center gap-2.5 rounded-full border border-ink/15 px-6 text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-ink-mute">
-                    <span aria-hidden className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-sand" />
+                  <span className="inline-flex h-11 items-center gap-2.5 rounded-full border border-white/15 px-6 text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-white/60">
+                    <span aria-hidden className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-signal" />
                     Up next
                   </span>
                   {youtube && (
-                    <Button href={youtube} external variant="outline-dark" arrow>
+                    <Button href={youtube} external variant="outline-light" arrow>
                       Subscribe on YouTube
                     </Button>
                   )}
@@ -189,7 +187,7 @@ export function FeaturedEpisode({
                   .map((topic) => (
                     <li
                       key={topic}
-                      className="rounded-full border border-ink/12 bg-white px-3.5 py-1.5 text-xs font-medium text-ink-mute"
+                      className="rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium text-white/70"
                     >
                       {topic}
                     </li>

@@ -1,5 +1,4 @@
 import { Container } from '@/components/ui/Container';
-import { Eyebrow } from '@/components/ui/Eyebrow';
 import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 import { INDIA, LAND, MAP_COLS, MAP_ROWS, UAE, USA, mapPoint } from './worldMap';
@@ -11,20 +10,20 @@ import { INDIA, LAND, MAP_COLS, MAP_ROWS, UAE, USA, mapPoint } from './worldMap'
  */
 export function ChaptersFeature() {
   return (
-    <section aria-labelledby="chapters-title" className="bg-white py-20 text-ink lg:py-28">
+    <section aria-labelledby="chapters-title" className="bg-white py-20 text-ink lg:py-32">
       <Container>
         <div className="grid gap-10 lg:grid-cols-2 lg:items-end lg:gap-16">
           <Reveal>
-            <Eyebrow>AntiSocial Chapters</Eyebrow>
-            <h2 id="chapters-title" className="display text-[clamp(2.25rem,5vw,4rem)]">
-              Beyond the Screen.
+            <p className="kicker mb-6 text-ink/55">AntiSocial Chapters</p>
+            <h2 id="chapters-title" className="headline text-[clamp(2.75rem,6.5vw,5.25rem)]">
+              Beyond the <span className="text-signal">Screen.</span>
             </h2>
-            <p className="mt-5 font-serif text-[clamp(1.25rem,2.2vw,1.75rem)] italic leading-snug text-sand-deep">
+            <p className="mt-6 font-display text-[clamp(1.25rem,2.2vw,1.75rem)] font-bold leading-snug tracking-tight text-ink/45">
               Different cities, different voices, one conversation.
             </p>
           </Reveal>
           <Reveal delay={80}>
-            <div className="max-w-lg space-y-4 text-[0.9375rem] leading-relaxed text-ink-mute">
+            <div className="max-w-lg space-y-4 text-[1rem] leading-relaxed text-ink/70">
               <p>
                 AntiSocial goes beyond the studio, bringing conversations into cities and communities
                 around the world.
@@ -54,10 +53,10 @@ export function ChaptersFeature() {
 }
 
 type Side = 'top' | 'bottom';
-const PLACES: { name: string; lon: number; lat: number; side: Side }[] = [
-  { name: 'USA', lon: -98.5, lat: 39.5, side: 'top' },
-  { name: 'Dubai', lon: 55.27, lat: 25.2, side: 'top' },
-  { name: 'India', lon: 78.9, lat: 21.5, side: 'bottom' },
+const PLACES: { name: string; lon: number; lat: number; side: Side; coords: string }[] = [
+  { name: 'USA', lon: -98.5, lat: 39.5, side: 'top', coords: '37.09° N' },
+  { name: 'Dubai', lon: 55.27, lat: 25.2, side: 'top', coords: '25.20° N' },
+  { name: 'India', lon: 78.9, lat: 21.5, side: 'bottom', coords: '20.59° N' },
 ];
 
 const LABEL: Record<Side, string> = {
@@ -95,7 +94,7 @@ function ChaptersMap() {
           <path
             d={`M${usa[0]} ${usa[1]}Q${(usa[0] + dubai[0]) / 2} 2 ${dubai[0]} ${dubai[1]}Q${(dubai[0] + india[0]) / 2} ${dubai[1] - 7} ${india[0]} ${india[1]}`}
             fill="none"
-            stroke="#a38258"
+            stroke="#e5141b"
             strokeWidth={1.25}
             strokeDasharray="3 4"
             vectorEffect="non-scaling-stroke"
@@ -105,11 +104,13 @@ function ChaptersMap() {
           const at = pct(mapPoint(p.lon, p.lat));
           return (
             <span key={p.name} aria-hidden className="absolute" style={at}>
-              <span className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sand ring-[3px] ring-white" />
+              <span className="absolute h-6 w-6 -translate-x-1/2 -translate-y-1/2 animate-ping rounded-full bg-signal/25 motion-reduce:hidden" />
+              <span className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-signal ring-[3px] ring-white" />
               <span
-                className={`absolute whitespace-nowrap rounded-full bg-white/90 px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-[0.18em] text-ink sm:text-[0.6875rem] ${LABEL[p.side]}`}
+                className={`absolute flex items-baseline gap-2 whitespace-nowrap bg-white/90 px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-[0.2em] text-ink sm:text-[0.6875rem] ${LABEL[p.side]}`}
               >
                 {p.name}
+                <span className="hidden font-medium tracking-[0.12em] text-ink/45 sm:inline">{p.coords}</span>
               </span>
             </span>
           );

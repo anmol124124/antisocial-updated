@@ -17,11 +17,13 @@
       }
     },
     "home_page": {
-      "hero_image": {
-        "file": "files/hero-portrait.jpg",
-        "title": "Home: hero portrait"
-      },
-      "hero_image_alt": "Black-and-white portrait of a woman looking into the distance",
+      "hero_lines": [
+        "They called us AntiSocial.",
+        "We decided to talk.",
+        "Not anti-society.",
+        "Anti-silence."
+      ],
+      "intro": "AntiSocial Talks is a global conversation and media platform exploring people, ideas and stories that challenge conventional thinking.\n\nWe bring together innovators, creators, leaders and everyday people for honest conversations about the issues shaping our lives and our future.\n\nThrough global chapters and live events, we take those conversations beyond the screen and into communities around the world.",
       "teaser_video": {
         "file": "files/teaser.mp4",
         "title": "Teaser clip"
@@ -42,12 +44,7 @@
         "Identity",
         "Money",
         "Belief"
-      ],
-      "question_image": {
-        "file": "files/question-say-what-others-wont.jpg",
-        "title": "Home: the question"
-      },
-      "question_image_alt": "A woman listening at a podcast microphone, with the words: Say what others won’t."
+      ]
     },
     "chapter_guide": {
       "mission": "Bring meaningful conversations to communities around the world, through podcasts, live talks, events and local storytelling.",

@@ -1,94 +1,50 @@
-import Link from 'next/link';
+import { Fragment } from 'react';
 import { Container } from '@/components/ui/Container';
-import { Eyebrow } from '@/components/ui/Eyebrow';
-import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 
-
 /**
- * Topics as type, not thumbnails: number and name, set big enough to read.
- *
- * Header runs full width above a 4-column grid, and the last cell is a
- * "suggest a topic" card two columns wide, so ten topics make an even 4×3.
+ * 06 / What We Talk About (homepage brief): back to black after the white
+ * Chapters section. A concise list set as type, not an episode browser: no
+ * pictures, no descriptions, no links. The names come from the CMS (Home page
+ * → Topics), in order.
  */
-/** `topics`: the names from the CMS (Home page → Topics), in order. */
 export function Topics({ topics }: { topics: string[] }) {
   if (!topics.length) return null;
   return (
-    <section
-      aria-labelledby="topics-title"
-      className="grain relative isolate overflow-hidden bg-ink py-20 text-white lg:py-28"
-    >
+    <section aria-labelledby="topics-title" className="grain relative isolate overflow-hidden bg-ink py-20 text-white lg:py-32">
       <Container className="relative z-10">
         <Reveal>
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <Eyebrow tone="light">What We Talk About</Eyebrow>
-              <h2 id="topics-title" className="display text-[clamp(2rem,4vw,3rem)]">
-                Big topics.{' '}
-                <span className="font-serif font-normal italic text-sand">Deeper conversations.</span>
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div>
+              <p className="kicker mb-6 text-white/55">What We Talk About</p>
+              <h2 id="topics-title" className="headline text-[clamp(2.25rem,5vw,3.75rem)]">
+                Big topics. <span className="text-signal">Deeper conversations.</span>
               </h2>
-              <p className="mt-6 max-w-xl text-[0.9375rem] leading-relaxed text-white/65">
-                Nothing is off the table.
-              </p>
             </div>
-            <Button href="/episodes" variant="outline-light" arrow className="self-start lg:self-auto">
-              Explore All Topics
-            </Button>
+            <p className="text-[1rem] text-white/55 lg:pb-2">Nothing is off the table.</p>
           </div>
         </Reveal>
 
-        <div className="mt-12 lg:mt-16">
-          <ul className="grid gap-px overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+        <Reveal delay={100}>
+          <ul className="mt-14 flex flex-wrap items-baseline gap-x-[0.35em] gap-y-1 border-t border-white/10 pt-12 font-display text-[clamp(2.25rem,6.2vw,5.25rem)] font-black leading-[1.08] tracking-[-0.04em] lg:mt-16 lg:pt-14">
             {topics.map((topic, i) => (
-              <li key={topic} className="bg-ink">
-                <Reveal delay={(i % 4) * 60} className="h-full">
-                  <div className="flex h-full min-h-[8.5rem] flex-col justify-between gap-6 p-6 sm:min-h-[13rem] sm:p-7">
-                    <span className="font-serif text-xl italic text-sand/80">{String(i + 1).padStart(2, '0')}</span>
-                    <span className="block text-[1.375rem] font-bold tracking-tight">{topic}</span>
-                  </div>
-                </Reveal>
-              </li>
-            ))}
-            <li className="bg-ink sm:col-span-2">
-              <Reveal delay={(topics.length % 4) * 60} className="h-full">
-                <Link
-                  href="/community/question"
-                  className="group flex h-full min-h-[8.5rem] flex-col justify-between gap-6 sm:min-h-[13rem] bg-sand p-6 text-ink sm:p-7 transition-colors duration-500 hover:bg-sand-light"
-                >
-                  <span className="eyebrow text-ink/60">Suggest a topic</span>
-                  <span>
-                    <span className="block font-serif text-[1.375rem] italic leading-snug">
-                      Is there something we should be talking about?
-                    </span>
-                    <span className="mt-4 inline-flex items-center gap-2 text-[0.6875rem] font-bold uppercase tracking-[0.16em]">
-                      Suggest a Topic
-                      <Arrow />
-                    </span>
+              <Fragment key={topic}>
+                <li className="inline-flex items-start whitespace-nowrap">
+                  <span aria-hidden className="mr-[0.18em] mt-[0.4em] hidden font-sans text-[0.16em] font-semibold tracking-[0.12em] text-signal sm:inline">
+                    {String(i + 1).padStart(2, '0')}
                   </span>
-                </Link>
-              </Reveal>
-            </li>
+                  {topic}
+                </li>
+                {i < topics.length - 1 && (
+                  <li aria-hidden className="text-signal">
+                    /
+                  </li>
+                )}
+              </Fragment>
+            ))}
           </ul>
-        </div>
+        </Reveal>
       </Container>
     </section>
-  );
-}
-
-function Arrow() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className="h-4 w-4"
-    >
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
   );
 }

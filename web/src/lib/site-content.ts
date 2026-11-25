@@ -5,7 +5,7 @@ import { teamInbox } from './mailer';
 
 /**
  * Site-wide settings and the page copy the team edits in the CMS: social
- * profiles, the home page pictures and lists, About values, the community
+ * profiles, the home page lines, introduction and lists, About values, the community
  * forms, the Roadshow route and the Chapters guide. (Episodes, guests, events
  * and products are in content.ts.) Like everything read from Directus, a
  * missing or unreachable CMS gives null / [] and the page leaves that part out.
@@ -69,40 +69,35 @@ export const youtubeChannel = (settings: SiteSettings): string | null =>
 /* ───────────────────────────── home page ──────────────────────────── */
 
 type HomePageRow = {
-  hero_image: string | null;
-  hero_image_alt: string | null;
+  hero_lines: string[] | null;
+  intro: string | null;
   teaser_video: string | null;
   teaser_poster: string | null;
   teaser_label: string | null;
   topics: string[] | null;
-  question_image: string | null;
-  question_image_alt: string | null;
 };
-
-export type Picture = { src: string; alt: string };
 
 export type Teaser = { src: string; poster: string | null; captions: string | null; label: string };
 
 export type HomePage = {
-  hero: Picture | null;
-  /** "What We Talk About", also the words scrolling under the hero. */
+  /** The lines the hero types out in turn, on a loop. */
+  heroLines: string[];
+  /** The introduction under the hero, one entry per paragraph. */
+  intro: string[];
+  /** "What We Talk About". */
   topics: string[];
-  question: Picture | null;
   /** The clip shown until the first episode is published. */
   teaser: Teaser | null;
 };
 
-const picture = (file: string | null, alt: string | null, width: number): Picture | null => {
-  const src = assetUrl(file, { width, quality: 85 });
-  return src ? { src, alt: alt || '' } : null;
-};
+const clean = (list: string[] | null | undefined): string[] => (list || []).map((t) => t.trim()).filter(Boolean);
 
 export async function getHomePage(): Promise<HomePage> {
   const row = await readSingleton<HomePageRow>('home_page');
   return {
-    hero: picture(row?.hero_image ?? null, row?.hero_image_alt ?? null, 1600),
-    topics: (row?.topics || []).map((t) => t.trim()).filter(Boolean),
-    question: picture(row?.question_image ?? null, row?.question_image_alt ?? null, 1400),
+    heroLines: clean(row?.hero_lines),
+    intro: (row?.intro || '').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean),
+    topics: clean(row?.topics),
     teaser: row?.teaser_video
       ? {
           src: `/api/assets/${row.teaser_video}`,

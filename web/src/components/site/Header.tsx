@@ -58,7 +58,7 @@ export function Header() {
               key={item.href}
               href={item.href}
               data-active={isActive(item.href)}
-              className="link-underline whitespace-nowrap text-[0.8125rem] font-medium text-white/80 transition-colors hover:text-white data-[active=true]:text-white"
+              className="link-underline whitespace-nowrap text-[0.8125rem] font-medium text-white/75 transition-colors after:!bg-signal hover:text-white data-[active=true]:text-white"
             >
               {item.label}
             </Link>
@@ -77,7 +77,7 @@ export function Header() {
               <path d="M9 7a3 3 0 0 1 6 0" />
             </svg>
             {count > 0 && (
-              <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-sand px-1 text-[0.625rem] font-bold text-ink">
+              <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-signal px-1 text-[0.625rem] font-bold text-white">
                 {count}
               </span>
             )}
@@ -86,7 +86,7 @@ export function Header() {
 
           <Link
             href="/community"
-            className="hidden h-10 items-center whitespace-nowrap rounded-full bg-white px-5 text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-ink transition hover:bg-cream-deep md:inline-flex"
+            className="hidden h-10 items-center whitespace-nowrap rounded-full border border-white/40 px-5 text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-white transition hover:border-white hover:bg-white hover:text-ink md:inline-flex"
           >
             Join the Community
           </Link>
@@ -124,7 +124,7 @@ export function Header() {
                   <Link
                     href={item.href}
                     data-active={isActive(item.href)}
-                    className="flex items-center justify-between border-b border-white/[0.07] py-3.5 text-base font-medium text-white/85 transition-colors hover:text-white data-[active=true]:text-sand"
+                    className="flex items-center justify-between border-b border-white/[0.07] py-3.5 text-base font-medium text-white/85 transition-colors hover:text-white data-[active=true]:text-signal"
                   >
                     {item.label}
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 opacity-40">

@@ -9,8 +9,8 @@ export function Logo({ className = '', onDark = true }: { className?: string; on
         onDark ? 'text-white' : 'text-ink'
       } ${className}`}
     >
-      <span className="font-extrabold">AntiSocial</span>
-      <span className="font-light">Talks</span>
+      <span className="font-display font-black tracking-[-0.04em]">AntiSocial</span>
+      <span className="font-display font-medium tracking-[-0.03em]">Talks</span>
     </Link>
   );
 }

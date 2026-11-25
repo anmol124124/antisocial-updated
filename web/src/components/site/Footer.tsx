@@ -13,17 +13,19 @@ export async function Footer() {
       <Container className="relative z-10 py-16 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1.6fr]">
           <div>
-            {/* The footer lines of the homepage brief, in the hand the closing call used for them. */}
-            <div className="mb-7 font-hand text-[2rem] leading-none">
-              <p className="text-sand">Think differently.</p>
-              <p className="text-white/85">Talk openly.</p>
+            {/* The footer lines of the homepage brief. */}
+            <div className="headline mb-8 text-[2.25rem]">
+              <p>Think differently.</p>
+              <p className="text-signal">Talk openly.</p>
             </div>
             <Logo />
-            <p className="mt-6 font-hand text-2xl text-sand">Not anti-society. Anti-silence.</p>
+            <p className="mt-4 text-sm font-medium text-white/60">
+              Not anti-society. <span className="text-white">Anti-silence.</span>
+            </p>
           </div>
 
           <nav aria-label="Footer">
-            <h4 className="eyebrow mb-5 text-white/45">Explore</h4>
+            <h4 className="kicker mb-5 whitespace-nowrap tracking-[0.22em] text-white/45">Explore</h4>
             <ul className="space-y-3">
               {footerNav.map((item) => (
                 <li key={item.href}>
@@ -36,7 +38,7 @@ export async function Footer() {
           </nav>
 
           <div>
-            <h4 className="eyebrow mb-5 text-white/45">Listen &amp; Follow</h4>
+            <h4 className="kicker mb-5 whitespace-nowrap tracking-[0.22em] text-white/45">Listen &amp; Follow</h4>
             <ul className="space-y-3">
               {social.map((s) => (
                 <li key={s.key}>
@@ -55,7 +57,7 @@ export async function Footer() {
           </div>
 
           <div>
-            <h4 className="eyebrow mb-5 text-white/45">Join the Community</h4>
+            <h4 className="kicker mb-5 whitespace-nowrap tracking-[0.22em] text-white/45">Join the Community</h4>
             <p className="mb-4 text-sm text-white/55">
               We email you when a new episode comes out, and that’s it.
             </p>
