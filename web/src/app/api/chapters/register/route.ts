@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createItem, insertItem, queryItems } from '@/lib/directus';
+import { createItem, insertItem, queryItems, updateItem } from '@/lib/directus';
 import { eventSlug, getEventByInviteCode, getEventBySlug, type ChapterEvent } from '@/lib/content';
 import { guestKey, invitationMail } from '@/lib/invitation';
 import { contactEmailFor } from '@/lib/site-content';
@@ -14,6 +14,7 @@ import {
 } from '@/lib/chapters';
 import { sendMail, summarise, teamInbox } from '@/lib/mailer';
 import { paymentsAreConfigured, startPayment } from '@/lib/payments';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -54,6 +55,9 @@ const HOLD_MINUTES = 35;
  * (see acceptInvitation below).
  */
 export async function POST(request: Request) {
+  const limited = rateLimit(request, 'register');
+  if (limited) return limited;
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();
@@ -134,6 +138,13 @@ export async function POST(request: Request) {
   if (price) {
     try {
       const registration = await insertItem('event_registrations', row);
+      // Two people can pass the check above at the same moment. Counting again with this
+      // booking in place settles it: whoever tipped it over the capacity is released.
+      const after = await balance(event);
+      if (after !== null && after < 0) {
+        await updateItem('event_registrations', registration, { status: 'cancelled', payment_status: 'not_required' });
+        return NextResponse.json({ error: 'This event is now full.' }, { status: 409 });
+      }
       const payment = await startPayment({
         kind: 'ticket',
         currency: price.currency,
@@ -293,6 +304,12 @@ async function acceptInvitation(body: Record<string, unknown>) {
 
 /** Places still free, or null when the event has no capacity set. */
 async function placesLeft(event: ChapterEvent): Promise<number | null> {
+  const left = await balance(event);
+  return left === null ? null : Math.max(0, left);
+}
+
+/** Capacity minus the places taken or held; below zero when overbooked. Null: no limit. */
+async function balance(event: ChapterEvent): Promise<number | null> {
   const capacity = Number(event.capacity);
   if (!capacity || capacity < 1) return null;
 
@@ -314,5 +331,5 @@ async function placesLeft(event: ChapterEvent): Promise<number | null> {
     limit: '-1',
   });
   const taken = rows.reduce((sum, r) => sum + (Number(r.attendees) || 1), 0);
-  return Math.max(0, capacity - taken);
+  return capacity - taken;
 }

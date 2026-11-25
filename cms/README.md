@@ -1,138 +1,112 @@
 # AntiSocialTalks CMS (Directus)
 
-Self-hosted admin panel for the team: add guests, flip an episode from
-"Coming Soon" to "Published", paste the YouTube link, manage host
-profiles, add chapter events, and review community-form submissions —
-all without asking a developer, and nothing goes live until someone
-with access approves it (Directus's own draft/published fields handle
-that).
+The admin panel where the team edits the website: episodes, guests, hosts, chapters,
+events, shop products, the site settings (contact email, social links, share picture),
+the home page pictures and topics, About values, the community forms' wording, the
+Roadshow stops and the Chapters guide. It also receives the forms, bookings and orders.
 
-## What this is (and isn't) yet
+Visitors never talk to Directus. The website reads and writes it server-side with its
+own least-privilege token, and serves CMS pictures and video through `/api/assets`.
 
-- **Is**: Directus itself, deployed and running, with the 5 collections
-  the website needs already created (`hosts`, `episodes`, `guests`,
-  `chapters`, `submissions`).
-- **Isn't yet**: the actual website pages that *read* from this data
-  (Episodes directory, guest profile pages, Dubai chapter page) and the
-  5 community forms that *write* to it. Those come next, once this is
-  confirmed running — see "Next" at the bottom.
+## Files
 
-## 1. Deploy Directus on the VPS
+| Path | What |
+|---|---|
+| `docker-compose.yml` | Server: Directus **11.17.4** (pinned) + PostgreSQL 16, Directus on `127.0.0.1:8055` only |
+| `docker-compose.local.yml` | Local development (throwaway credentials, never deployed) |
+| `.env.example` | Server settings → copy to `.env` next to `docker-compose.yml` |
+| `schema/snapshot.json` | The complete schema: every collection, field and relation |
+| `schema/website-policy.json` | What the website's Directus user may do (read content, create forms/bookings/orders; nothing else) |
+| `seed/content.json`, `seed/files/` | Starting content for the site settings and page copy, with its pictures and the teaser clip |
+| `scripts/provision.mjs` | Applies the three above to any Directus. Safe to re-run |
+| `scripts/create-site-token.mjs` | Creates/rotates the website's Directus user and token, and proves what it can and can't do |
+| `nginx/` | HTTPS proxy configs for `cms.` / `cms-stage.antisocialtalks.com` |
 
-Requires Docker. Check first:
-
-```bash
-docker --version
-```
-
-If that errors, install it:
+## Provisioning: one command
 
 ```bash
-sudo apt update
-sudo apt install -y docker.io docker-compose-v2
-sudo systemctl enable --now docker
+DIRECTUS_URL=http://127.0.0.1:8055 DIRECTUS_EMAIL=<admin> DIRECTUS_PASSWORD=<password> \
+  node cms/scripts/provision.mjs --dry-run      # shows what would change
+DIRECTUS_URL=http://127.0.0.1:8055 DIRECTUS_EMAIL=<admin> DIRECTUS_PASSWORD=<password> \
+  node cms/scripts/provision.mjs
 ```
 
-Upload this folder (from your PC, PowerShell):
+1. **Schema**: adds what is missing and updates what differs. Never deletes: anything in
+   the CMS that is not in the snapshot is listed and kept (`--allow-deletes` to remove it).
+2. **Website permissions**: adds or updates the rules in `website-policy.json`; extra
+   rules are listed, never removed.
+3. **Starting content**: fills a collection only while it is still **empty**, so nothing
+   the team has edited is ever overwritten.
 
-```powershell
-cd "C:\Users\admin\Downloads\latest code\antisocialtalks\cms"
-scp -r docker-compose.yml .env.example provision-schema.js cms.antisocialtalks.com.nginx ubuntu@10.90.30.84:/home/ubuntu/antisocialtalks-cms/
-```
+The snapshot was taken on Directus 11.17.4. On a different version the script stops and
+says so; upgrade the container (back up first, below) or pass `--force`.
 
-On the VPS:
+Tested on an empty Directus and on one in the state the live CMS was in before this
+restructure: both end up identical, and a second run changes nothing.
+
+## Local development
+
+From `web/`: `npm run cms:up`, then `npm run setup:local` (provision + a few starter
+rows + the website token written into `web/.env.local`). Dashboard: http://localhost:8055,
+login in `docker-compose.local.yml`.
+
+## Server
+
+### First install
 
 ```bash
-cd /home/ubuntu/antisocialtalks-cms
-cp .env.example .env
+cp .env.example .env          # fill in: openssl rand -hex 32 for KEY, SECRET, DB_PASSWORD; a real ADMIN_EMAIL/PASSWORD
+docker compose up -d
+DIRECTUS_URL=http://127.0.0.1:8055 DIRECTUS_EMAIL=… DIRECTUS_PASSWORD=… node scripts/provision.mjs
+DIRECTUS_URL=http://127.0.0.1:8055 DIRECTUS_EMAIL=… DIRECTUS_PASSWORD=… node scripts/create-site-token.mjs /root/site-token
+# put the token into the website's .env.local as DIRECTUS_TOKEN, then delete the file
 ```
 
-Edit `.env` and fill in every value (never upload a real `.env` from
-Windows — same rule as the backend project). Generate the two secrets:
+HTTPS: the config in `nginx/`, a Cloudflare DNS record for the CMS host, and a certificate
+with certbot. See `../deploy/README.md` for the full order.
+
+### Updating an existing CMS (e.g. after this restructure)
 
 ```bash
-openssl rand -hex 32   # -> DIRECTUS_KEY
-openssl rand -hex 32   # -> DIRECTUS_SECRET
+docker exec <directus-container> node -e "console.log(require('/directus/package.json').version)"   # which version runs
+# back up first (below), then:
+node scripts/provision.mjs --dry-run      # read the list
+node scripts/provision.mjs
 ```
 
-Start it:
+The existing website token keeps working; `create-site-token.mjs` is only needed for a new one.
+
+### Backups
 
 ```bash
-sudo docker compose up -d
-sudo docker compose logs -f directus   # watch until it says "Server started"
+docker exec <postgres-container> pg_dump -U directus directus | gzip > cms-$(date +%F).sql.gz
+docker run --rm -v <project>_uploads:/u -v "$PWD":/b alpine tar czf /b/uploads-$(date +%F).tgz -C /u .
 ```
 
-## 2. Nginx + HTTPS
+## Changing the schema
+
+Make the change in a local Directus (dashboard or script), then save it into the repo:
 
 ```bash
-sudo mv cms.antisocialtalks.com.nginx /etc/nginx/sites-available/cms.antisocialtalks.com
-sudo ln -s /etc/nginx/sites-available/cms.antisocialtalks.com /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
+curl -s -H "Authorization: Bearer <admin token>" http://localhost:8055/schema/snapshot \
+  | node -e 'process.stdout.write(JSON.stringify(JSON.parse(require("fs").readFileSync(0)).data,null,2)+"\n")' \
+  > cms/schema/snapshot.json
 ```
 
-Add a Cloudflare DNS record first: `A cms 158.51.50.44` (proxied), then:
+A new collection the website reads also needs its `read` rule in `schema/website-policy.json`.
+Commit both; `provision.mjs` applies them everywhere. No more one-off dated scripts
+(the old ones are in `web/scripts/migrations/`, as history).
 
-```bash
-sudo certbot --nginx -d cms.antisocialtalks.com
-```
+## Security notes
 
-If certbot says "could not find a matching server block" (it did once
-before on this VPS, for antisocialtalks.com itself), tell Claude and
-it'll write the 443 block by hand the same way it did last time.
+- Nothing in the CMS is public. The website uses its own token; the **Public** policy
+  stays empty. (Do not give Public "create" on `submissions`: that would let anyone
+  write to the CMS directly and skip the website's checks and limits.)
+- Directus listens on `127.0.0.1` only; it is reached through nginx.
+- The admin login page is on the internet. Restricting `/admin` and `/auth` to the team
+  (nginx `allow`/`deny`, or Cloudflare Access) is recommended; it is a server decision.
 
-Once that's done, `https://cms.antisocialtalks.com` should show the
-Directus login screen. Log in with the `ADMIN_EMAIL` / `ADMIN_PASSWORD`
-from `.env`.
+### Licence
 
-## 3. Create the collections
-
-From your PC (or the VPS — anywhere with Node):
-
-```bash
-cd antisocialtalks/cms
-DIRECTUS_URL=https://cms.antisocialtalks.com \
-DIRECTUS_EMAIL=gurpreet@kapoorwealth.com \
-DIRECTUS_PASSWORD='the ADMIN_PASSWORD you set' \
-node provision-schema.js
-```
-
-This creates `hosts`, `episodes`, `guests`, `chapters`, `submissions`
-with all their fields. Safe to re-run.
-
-## 4. Two one-time clicks in the Directus dashboard
-
-**Let the public website submit forms**, without letting the public
-read or edit anything else:
-1. Settings -> Access Policies -> **Public**.
-2. Under Permissions, find **submissions** and enable **Create** only.
-   Leave Read/Update/Delete off.
-
-**Email notification on every new submission** (needs SMTP filled in
-`.env` first — Gmail with an app password, or a transactional sender
-like Resend/SendGrid work fine):
-1. Settings -> Flows -> **Create Flow**.
-2. Trigger: **Event Hook**, type `action`, scope `items.create`,
-   collection `submissions`.
-3. Operation: **Send Email** -> To: `gurpreet@kapoorwealth.com`,
-   Subject: `New AntiSocialTalks submission: {{$trigger.payload.type}}`,
-   Body: include `{{$trigger.payload.name}}`, `{{$trigger.payload.email}}`,
-   `{{$trigger.payload.message}}`.
-
-Submissions land in the Directus dashboard immediately either way —
-the email is a convenience notification on top, not the only place
-they're recorded.
-
-## Next (not built yet)
-
-1. Wire the website's guest grid and Featured Episode section to read
-   from `guests` / `episodes` instead of hardcoded HTML, so the
-   "Coming Soon" -> "Watch Episode" swap and new guest cards are a
-   Directus edit, not a code change.
-2. Build the 5 forms (Share Your Story, Submit a Question, Suggest a
-   Speaker, Join the Community, Partner With Us) as real `<form>`s that
-   POST to `https://cms.antisocialtalks.com/items/submissions`, with a
-   confirmation message and an email-consent checkbox.
-3. Build the Episodes directory (browse by guest/host/topic) and host
-   profile pages.
-4. Build the Chapters section and the Dubai template, reading from
-   `chapters`.
+Directus is free for organisations under US$5 million total annual revenue / funding
+(Business Source Licence); above that a commercial licence is needed.

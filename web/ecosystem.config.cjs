@@ -34,6 +34,8 @@ module.exports = {
       script: './node_modules/next/dist/bin/next',
       args: `start -p ${port}`,
       cwd: __dirname,
+      // One process: the payment lock (lib/payments.ts) and the form limits
+      // (lib/rate-limit.ts) live in memory. Don't raise this without moving them to shared storage.
       instances: 1,
       exec_mode: 'fork',
       autorestart: true,

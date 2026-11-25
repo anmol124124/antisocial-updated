@@ -1,15 +1,17 @@
 # AntiSocialTalks — Next.js app
 
 The whole site in one Next.js 15 app: the public website, the Directus content
-layer, and the Gelato print-on-demand shop (including its API routes). There is
-no separate Express process any more — `../backend` stays in the repo as
-reference, but nothing runs from it.
+layer, the shop (Gelato and Qikink printing, Stripe payments), event bookings
+and the community forms, including their API routes.
+
+Requires Node 22.18 or newer (`../.nvmrc`) and Docker for the local CMS.
 
 ```bash
 cd web
-npm install
-cp .env.example .env.local     # then fill it in
-npm run dev                    # http://localhost:3012
+npm ci
+npm run cms:up        # local Postgres + Directus on http://localhost:8055
+npm run setup:local   # CMS schema, permissions, starter content, and DIRECTUS_TOKEN in .env.local
+npm run dev           # http://localhost:3012
 ```
 
 ## Where everything lives
@@ -17,87 +19,48 @@ npm run dev                    # http://localhost:3012
 | Path | What it is |
 | --- | --- |
 | `src/app/` | Pages and API route handlers (App Router) |
-| `src/lib/directus.ts` | Typed Directus REST client — every content read goes through it |
-| `src/lib/content.ts` | The queries: episodes, guests, hosts, chapters, topics, products |
-| `src/lib/gelato.ts` | Direct Gelato REST client (catalog, quote, order) |
-| `src/lib/payments.ts` | Taking money through Stripe, and handing paid orders to the printer (`fulfilment.ts`) |
-| `src/components/` | UI, split by area: `site`, `home`, `episodes`, `guests`, `shop`, `forms`, `ui` |
-| `scripts/verify/verify-gelato.mjs` | Checks the Gelato key actually works |
-| `scripts/migrations/seed-directus.mjs` | Adds the `topics` + `shop_products` collections and seeds content |
+| `src/lib/directus.ts` | Directus REST client: every content read and write goes through it |
+| `src/lib/content.ts` | Episodes, guests, hosts, chapters, events, topics, products |
+| `src/lib/site-content.ts` | Site settings (contact email, social links, share picture), home page, About values, community forms wording, Roadshow, Chapters guide |
+| `src/lib/env.ts` | Every setting read from the environment, with a clear error when one is missing |
+| `src/lib/rate-limit.ts` | Per-visitor limits on the public forms, quotes and checkout |
+| `src/lib/gelato.ts`, `qikink.ts`, `stripe.ts`, `payments.ts`, `fulfilment.ts` | The shop: printing, payments, handing paid orders to the printer |
+| `src/lib/legal.ts` | Terms and Privacy text (kept in code on purpose: it changes with the lawyer, not the team) |
+| `src/components/` | UI by area: `site`, `home`, `episodes`, `guests`, `chapters`, `shop`, `forms`, `legal`, `ui` |
+| `scripts/shop/` | Products into the CMS, merch artwork, Gelato look-ups and test orders |
+| `scripts/events/` | Event posters into the CMS |
+| `scripts/verify/` | Check Gelato, Stripe, the mailbox and the whole shop setup from a server |
+| `scripts/dev/` | Local setup, starter content, the world map generator |
+| `scripts/migrations/` | Applied history (Oct–Nov 2026). Don't run; see its README |
+| `tests/` | Unit/API tests and the end-to-end run, against stand-ins for every outside service |
 
-## Content: Directus is the only source
+## Content: Directus is the source
 
-Nothing on this site is hardcoded content. Episodes, guests, hosts, chapters,
-topics and shop products are all read from Directus, which means the team can
-change any of it without a deploy — including the "Coming Soon" → "Watch
-Episode" swap, which is just the `status` field on an episode row.
+Everything the team edits comes from Directus: episodes, guests, hosts,
+chapters, events, topics, products, and the site settings and page copy in
+`site-content.ts`. Changes show within a minute, no deploy needed. What stays
+in code: the page layouts and headings, form logic, the menus and the legal
+pages.
 
-The trade-off: **until the CMS is up and populated, every section renders an
-empty state.** That is deliberate, not a bug — each empty state names the
-collection you need to add a row to. Reads are also fault-tolerant: if Directus
-is unreachable, pages render their empty state instead of throwing a 500 at a
-visitor, and the reason is logged server-side once.
+Reads are fault-tolerant: if the CMS is unreachable or a collection is empty,
+that part of the page is left out (or shows its empty state) instead of a 500,
+and the reason is logged once on the server.
 
-### Running Directus locally (development)
-
-Needs **Docker Desktop** — Directus depends on `isolated-vm`, a native module
-that will not install from npm on Windows without Visual Studio Build Tools.
-Docker sidesteps that entirely.
-
-```bash
-npm run cms:up        # starts Postgres + Directus on http://localhost:8055
-npm run setup:local   # schema + seed content + writes DIRECTUS_TOKEN into .env.local
-npm run dev           # http://localhost:3012
-```
-
-`setup:local` is idempotent. It waits for Directus to come up, logs in, gives
-the admin a static token (so nothing has to be made public locally), then runs
-`../cms/provision-schema.js` followed by `scripts/migrations/seed-directus.mjs`.
-
-Local dashboard: <http://localhost:8055> — `admin@antisocialtalks.local` /
-`admin1234`, set in `../cms/docker-compose.local.yml`. Those credentials are
-throwaway dev values; that file is never deployed.
+The CMS schema, the website's permissions and the starting content are in
+`../cms` and applied with one command (`npm run cms:provision`, see
+`../cms/README.md`). The local admin login is in `../cms/docker-compose.local.yml`
+(throwaway values, never deployed).
 
 ```bash
 npm run cms:logs      # follow the Directus log
 npm run cms:down      # stop, keeping the data
 ```
 
-### Getting content in (production)
-
-1. Deploy Directus on the VPS — see `../cms/README.md`.
-2. Run the original schema provisioner: `node ../cms/provision-schema.js`.
-3. Run this app's seeder, which adds the two extra collections the website
-   needs and seeds the content the old static page had hardcoded:
-
-   ```bash
-   DIRECTUS_URL=https://cms.antisocialtalks.com \
-   DIRECTUS_EMAIL=you@example.com \
-   DIRECTUS_PASSWORD='...' \
-   npm run seed
-   ```
-
-   Safe to re-run — it only creates what is missing and never overwrites edits.
-
-4. Give the site its own token:
-
-   ```bash
-   DIRECTUS_URL=... DIRECTUS_EMAIL=... DIRECTUS_PASSWORD=... \
-   node ../cms/scripts/create-site-token.mjs
-   ```
-
-   Its policy reads the content collections and files and creates
-   submissions, nothing more; the script verifies that before printing the
-   token for `DIRECTUS_TOKEN`. Nothing in the CMS is made public.
-
-   Don't try to cover the forms with the Public policy instead: Directus never
-   applies Public permissions to a request that carries a token, so the forms
-   would 403.
-
 ### Images
 
-Uploaded files are served through `/api/assets/[id]`, which fetches from
-Directus server-side and streams the result back. So the Directus token never
+Uploaded files (pictures, and MP4/WebM video such as the teaser) are served
+through `/api/assets/[id]`, which fetches from Directus server-side and
+streams the result back. So the Directus token never
 reaches the browser, images work whether or not the collections are public, and
 the CMS hostname never appears in the HTML — moving the CMS is an env change.
 
@@ -115,13 +78,13 @@ That lists the catalogs your account can print from and prints real
 `gelato_product_uid`, add a `price` and a publicly-reachable `print_file_url`,
 set status to Published — the product appears in the shop.
 
-The merch range lives in `merch/products.json` and goes in with
-`node scripts/shop/add-products.mjs merch/products.json` (`--check` first; it only
+The merch range lives in `../assets/merch/products.json` and goes in with
+`node scripts/shop/add-products.mjs ../assets/merch/products.json` (`--check` first; it only
 checks Gelato and the files). Each product is one shop item with a colour
 option: extra colours are `colorways`, each with its own Gelato template,
 print files, mockup and swatch, or `"markets": ["IN"]` when only Qikink makes
 it (it then needs a code in the product's `qikink.color_codes`). A colour's
-model photo is picked up from `merch/photos/<slug>-<colour>.png`, or listed as
+model photo is picked up from `../assets/merch/photos/<slug>-<colour>.png`, or listed as
 its `photo`, with more photos in its `gallery` (the first colour's are the
 product's `photo` and `gallery`); the first photo is the one the shop card
 shows. `--only-colours` updates just the colours of products already in the
@@ -189,6 +152,7 @@ and `/checkout` to `/shop`; it is read at build time.
 npm test           # unit and API tests, offline (Node 22.18+ or 24)
 npm run test:e2e   # production build + crawl against a stand-in CMS
 npm run typecheck
+npm run lint
 ```
 
 `npm test` runs the real route handlers against stand-ins for Directus,
@@ -201,11 +165,6 @@ use the `.next` folder.
 
 ## Deploying
 
-```bash
-npm run build
-npm run start     # binds :3012
-```
-
-Behind nginx, proxy the site to `127.0.0.1:3012`. Under pm2, run
-`npm run start` rather than `next dev`, and ship `.env.local` to the server
-separately — never commit it.
+See `../deploy/README.md`. In short: the env file from `.env.production.example`
+(or `.env.stage.example`) as `.env.local` on the server, `npm ci && npm run build`,
+then `pm2 start ecosystem.config.cjs` (one process, `PORT` default 3012).

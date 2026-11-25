@@ -14,7 +14,6 @@
  */
 
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { ENV_LOCAL } from '../lib/paths.mjs';
 
 try {

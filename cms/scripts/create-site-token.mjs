@@ -14,7 +14,7 @@
  *
  *   DIRECTUS_URL=http://127.0.0.1:8055 \
  *   DIRECTUS_EMAIL=admin@example.com DIRECTUS_PASSWORD=... \
- *   node ../cms/scripts/create-site-token.mjs [path/to/write/token]
+ *   node cms/scripts/create-site-token.mjs [path/to/write/token]
  *
  * Safe to re-run: the policy, its permissions and the user are reused, and
  * the token is rotated. The script finishes by proving the token can do what

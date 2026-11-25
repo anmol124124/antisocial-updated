@@ -53,11 +53,9 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname, basename, extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { ENV_LOCAL } from '../lib/paths.mjs';
 
-const here = dirname(fileURLToPath(import.meta.url));
 try {
   for (const line of readFileSync(ENV_LOCAL, 'utf8').split('\n')) {
     const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/);

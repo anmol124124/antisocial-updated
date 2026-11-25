@@ -19,7 +19,6 @@
  */
 
 import { execSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);

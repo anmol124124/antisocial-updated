@@ -18,7 +18,6 @@ import { gelatoApiKey } from './env';
 
 const PRODUCT_API = 'https://product.gelatoapis.com/v3';
 const ORDER_API = 'https://order.gelatoapis.com/v4';
-const ECOMMERCE_API = 'https://ecommerce.gelatoapis.com/v1';
 
 export class GelatoError extends Error {
   status: number;
@@ -123,13 +122,6 @@ export function getProductPrices(productUid: string, country?: string, currency?
   return gelatoFetch<PriceRow[]>(
     `${PRODUCT_API}/products/${encodeURIComponent(productUid)}/prices${qs}`,
   );
-}
-
-/* ──────────────────── connected store (optional) ──────────────────── */
-
-export function listStoreProducts(storeId = process.env.GELATO_STORE_ID) {
-  if (!storeId) throw new Error('GELATO_STORE_ID is not set.');
-  return gelatoFetch<unknown>(`${ECOMMERCE_API}/stores/${storeId}/products`);
 }
 
 /* ──────────────────────────────  orders  ──────────────────────────── */

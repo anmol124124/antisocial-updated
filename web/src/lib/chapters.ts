@@ -599,6 +599,23 @@ export const PROPOSAL_UPLOAD = {
   ],
 };
 
+/** The first bytes each allowed proposal type starts with: PDF, old Office (OLE), new Office (ZIP). */
+const SIGNATURES: [type: (t: string) => boolean, bytes: number[]][] = [
+  [(t) => t === 'application/pdf', [0x25, 0x50, 0x44, 0x46]],
+  [(t) => t === 'application/msword' || t === 'application/vnd.ms-powerpoint', [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]],
+  [(t) => t.startsWith('application/vnd.openxmlformats-officedocument.'), [0x50, 0x4b, 0x03, 0x04]],
+];
+
+/**
+ * Whether a file's content matches the type the browser says it is. The type
+ * alone is just a label anyone can set, so a script or program renamed to
+ * .pdf would otherwise reach the team's inbox as a "proposal".
+ */
+export function contentMatchesType(type: string, head: Uint8Array): boolean {
+  const signature = SIGNATURES.find(([matches]) => matches(type))?.[1];
+  return Boolean(signature && signature.every((byte, i) => head[i] === byte));
+}
+
 /* ─────────────────────────── validation ──────────────────────────── */
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

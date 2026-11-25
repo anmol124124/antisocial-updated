@@ -18,6 +18,7 @@ export const FILES = {
   tealFront: '88888888-8888-4888-8888-888888888888',
   sandMockup: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   galleryPhoto: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+  video: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
 };
 
 const SITE = 'https://stage.antisocialtalks.com';
@@ -46,6 +47,7 @@ export function seed({ future = '2099-01-01T00:00:00.000Z' } = {}) {
       { id: FILES.tealFront, type: 'image/png', bytes: PNG_1x1 },
       { id: FILES.sandMockup, type: 'image/png', bytes: PNG_1x1 },
       { id: FILES.galleryPhoto, type: 'image/png', bytes: PNG_1x1 },
+      { id: FILES.video, type: 'video/mp4', bytes: Uint8Array.from(Buffer.from('....ftypisom test clip')) },
       { id: FILES.proposal, type: 'application/pdf', bytes: Uint8Array.from(Buffer.from('%PDF-1.4 private')) },
       { id: FILES.svg, type: 'image/svg+xml', bytes: Uint8Array.from(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>')) },
     ],

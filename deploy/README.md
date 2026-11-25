@@ -5,12 +5,14 @@ Puts the Next.js site and Directus on **staging** first. The live
 staging is a separate directory, a separate pm2 app and a separate nginx server
 block. Promoting to production is a short appendix at the end.
 
-**Target:** the VPS whose hostname is `wbsnj` (Ubuntu, Node 22, pm2, nginx + certbot).
+**Target:** the VPS (Ubuntu, Node 22, pm2, nginx + certbot). Its addresses and SSH
+login are in the team's private ops notes, not in this repository; below they are
+written as `<ssh-user>@<server-private-ip>` and `<server-public-ip>`.
 
-- **SSH to it as `ubuntu@10.90.30.84`** — its private address. `wbsnj` is only the
+- **SSH to it as `<ssh-user>@<server-private-ip>`** — its private address. `<server-hostname>` is only the
   hostname shown in the shell prompt; it is not an SSH alias, so
-  `ssh ubuntu@wbsnj` will not resolve from the Windows machine.
-- **Public IP `158.51.50.44`** — what DNS points at, and what Let's Encrypt and
+  `ssh <ssh-user>@<server-hostname>` will not resolve from the Windows machine.
+- **Public IP `<server-public-ip>`** — what DNS points at, and what Let's Encrypt and
   visitors connect to.
 
 | Service | Runs as | Port | URL |
@@ -20,10 +22,29 @@ block. Promoting to production is a short appendix at the end.
 
 Port 3012 because 3000–3010 are taken by other pm2 apps on this box.
 
-**Staging is not indexable.** Anything whose `NEXT_PUBLIC_SITE_URL` is not
-`antisocialtalks.com` serves `Disallow: /` in robots.txt and a `noindex,
-nofollow` meta tag on every page, and the nginx config adds an `X-Robots-Tag`
-header on top. Nothing to remember — it follows the env var.
+**Staging is not indexable.** Only a site with `SITE_INDEXABLE=true` in its
+`.env.local` may be indexed; everything else serves `Disallow: /` in robots.txt
+and a `noindex, nofollow` meta tag on every page, and the staging nginx config
+adds an `X-Robots-Tag` header on top. Set it to `true` on production only.
+
+## Upgrading a running site to the restructured code (`feature/code-restructure`)
+
+For a CMS and site that are already up. Nothing is deleted from the CMS.
+
+1. **Back up the CMS database** (see `cms/README.md` → Backups).
+2. **CMS folder on the server:** upload `cms/schema`, `cms/seed`, `cms/scripts` and
+   `cms/docker-compose.yml` into it. Keep its `.env`.
+3. **Directus version:** the compose file now pins `11.17.4`. Check what runs
+   (`cms/README.md` → Updating); if it is older, `sudo docker compose pull && sudo docker compose up -d`.
+4. **Provision** (A6 below): `node scripts/provision.mjs --dry-run`, read the list, then
+   without `--dry-run`. It adds the new collections (site settings, home page, About values,
+   community forms, Roadshow, Chapters guide), the website's read rules for them, and
+   their starting content with the pictures and teaser clip.
+5. **Site** (B1–B5): upload `web/`, then in its `.env.local` add `SITE_INDEXABLE=true` on
+   **production only** (staging: `false`); drop `GELATO_STORE_ID` / `GELATO_WEBHOOK_SECRET`
+   (unused). `npm ci && npm run build && pm2 restart <app>`.
+6. **Check:** home page pictures, topics and social links; a form sends; `/robots.txt`
+   allows indexing on production only.
 
 **Do Part A before Part B.** The site reads all content from the CMS, so a site
 deployed against an empty CMS renders empty sections.
@@ -45,7 +66,7 @@ In Cloudflare:
 
 1. Add the CMS record:
    ```
-   Type: A   Name: cms-stage   IPv4: 158.51.50.44   Proxy: DNS only (grey cloud)
+   Type: A   Name: cms-stage   IPv4: <server-public-ip>   Proxy: DNS only (grey cloud)
    ```
 2. Temporarily set the existing `stage` record to **DNS only (grey cloud)** too.
 
@@ -66,7 +87,7 @@ Resolve-DnsName stage.antisocialtalks.com     -Server 1.1.1.1 -Type A
 Resolve-DnsName cms-stage.antisocialtalks.com -Server 1.1.1.1 -Type A
 ```
 
-While grey-clouded both must show `158.51.50.44`. If you still see Cloudflare
+While grey-clouded both must show `<server-public-ip>`. If you still see Cloudflare
 addresses (`104.21.*`, `172.67.*`) the record is still proxied, or the change
 has not propagated yet — wait a minute and re-run.
 
@@ -90,8 +111,8 @@ From Windows PowerShell:
 
 ```powershell
 cd "C:\Users\admin\Downloads\latest code\antisocialtalks\cms"
-ssh ubuntu@10.90.30.84 "mkdir -p /home/ubuntu/antisocialtalks-cms-stage"
-scp docker-compose.yml .env.example provision-schema.js cms-stage.antisocialtalks.com.nginx ubuntu@10.90.30.84:/home/ubuntu/antisocialtalks-cms-stage/
+ssh <ssh-user>@<server-private-ip> "mkdir -p /home/ubuntu/antisocialtalks-cms-stage"
+scp -r docker-compose.yml .env.example schema seed scripts nginx <ssh-user>@<server-private-ip>:/home/ubuntu/antisocialtalks-cms-stage/
 ```
 
 > Upload `docker-compose.yml`, **not** `docker-compose.local.yml` — that one has
@@ -120,7 +141,7 @@ curl -s localhost:8055/server/ping        # expect: pong
 ### A4. nginx
 
 ```bash
-sudo mv /home/ubuntu/antisocialtalks-cms-stage/cms-stage.antisocialtalks.com.nginx \
+sudo cp /home/ubuntu/antisocialtalks-cms-stage/nginx/cms-stage.antisocialtalks.com.conf \
         /etc/nginx/sites-available/cms-stage.antisocialtalks.com
 sudo ln -s /etc/nginx/sites-available/cms-stage.antisocialtalks.com /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
@@ -139,29 +160,23 @@ SSL/TLS mode is **Full (strict)**.
 Open <https://cms-stage.antisocialtalks.com> and log in with `ADMIN_EMAIL` /
 `ADMIN_PASSWORD` from `.env`.
 
-### A6. Create the collections and seed content
+### A6. Schema, permissions and starting content
 
-From Windows PowerShell:
+On the VPS, in the CMS folder (the admin login is read from its `.env`):
 
-```powershell
-cd "C:\Users\admin\Downloads\latest code\antisocialtalks\cms"
-$env:DIRECTUS_URL="https://cms-stage.antisocialtalks.com"
-$env:DIRECTUS_EMAIL="the ADMIN_EMAIL you set"
-$env:DIRECTUS_PASSWORD="the ADMIN_PASSWORD you set"
-node provision-schema.js
+```bash
+cd /home/ubuntu/antisocialtalks-cms-stage
+export DIRECTUS_URL=http://127.0.0.1:8055
+export DIRECTUS_EMAIL=$(grep ^ADMIN_EMAIL= .env | cut -d= -f2)
+export DIRECTUS_PASSWORD=$(grep ^ADMIN_PASSWORD= .env | cut -d= -f2)
+node scripts/provision.mjs --dry-run     # read what it will do
+node scripts/provision.mjs
 ```
 
-Creates `hosts`, `episodes`, `guests`, `chapters`, `submissions`. Then the two
-collections the website adds, plus starter content (7 topics, 6 guests, the
-coming-soon episode, the Dubai chapter) — same PowerShell session, so the env
-vars carry over:
-
-```powershell
-cd ..\web
-npm run seed
-```
-
-Both are safe to re-run; they only create what is missing.
+Creates every collection the site uses (`schema/snapshot.json`), the website's
+permissions (`schema/website-policy.json`) and the starting site settings and
+page copy (`seed/`). Safe to re-run: it never deletes, and only fills empty
+collections. Details: `cms/README.md`.
 
 ### A7. The website's access token
 
@@ -173,16 +188,14 @@ Nothing in the CMS is made public.
 > never receive Public permissions in Directus, so "Public: create on
 > submissions" silently does nothing for this site and every form returns 403.
 
-Run on the VPS once Part B1 has put the site files in place (the script ships
-with them). The admin credentials are read from the CMS `.env`:
+Run on the VPS, in the CMS folder, with the same three variables as A6:
 
 ```bash
 cd /home/ubuntu/antisocialtalks-cms-stage
 export DIRECTUS_URL=http://127.0.0.1:8055
 export DIRECTUS_EMAIL=$(grep ^ADMIN_EMAIL= .env | cut -d= -f2)
 export DIRECTUS_PASSWORD=$(grep ^ADMIN_PASSWORD= .env | cut -d= -f2)
-node /var/www/stage.antisocialtalks.com/../cms/scripts/create-site-token.mjs \
-     /home/ubuntu/antisocialtalks-cms-stage/.site-token
+node scripts/create-site-token.mjs /home/ubuntu/antisocialtalks-cms-stage/.site-token
 ```
 
 It creates the policy, a `website@antisocialtalks.com` user and a static token,
@@ -203,10 +216,10 @@ is local-only.
 ```powershell
 cd "C:\Users\admin\Downloads\latest code\antisocialtalks"
 tar -czf web.tar.gz --exclude=node_modules --exclude=.next --exclude=.env.local web
-scp web.tar.gz ubuntu@10.90.30.84:/home/ubuntu/
+scp web.tar.gz <ssh-user>@<server-private-ip>:/home/ubuntu/
 ```
 
-(~41 MB, mostly the teaser video.)
+(A few MB: the pictures and the teaser clip now live in the CMS.)
 
 On the VPS:
 
@@ -243,9 +256,10 @@ Set:
 
 ```ini
 NEXT_PUBLIC_SITE_URL=https://stage.antisocialtalks.com
+SITE_INDEXABLE=false
 DIRECTUS_URL=http://127.0.0.1:8055
 NEXT_PUBLIC_DIRECTUS_URL=https://cms-stage.antisocialtalks.com
-DIRECTUS_TOKEN=<the read-only token from A7>
+DIRECTUS_TOKEN=<the website token from A7>
 GELATO_API_KEY=<your Gelato key>
 PAYMENT_GATEWAY=none
 ```
@@ -303,12 +317,12 @@ deploys break.
 ### B6. nginx
 
 ```powershell
-cd "C:\Users\admin\Downloads\latest code\antisocialtalks\deploy"
-scp stage.antisocialtalks.com.nginx ubuntu@10.90.30.84:/home/ubuntu/
+cd "C:\Users\admin\Downloads\latest code\antisocialtalks\deploy\nginx"
+scp stage.antisocialtalks.com.conf <ssh-user>@<server-private-ip>:/home/ubuntu/
 ```
 
 ```bash
-sudo cp /home/ubuntu/stage.antisocialtalks.com.nginx \
+sudo cp /home/ubuntu/stage.antisocialtalks.com.conf \
         /etc/nginx/sites-available/stage.antisocialtalks.com
 sudo ln -s /etc/nginx/sites-available/stage.antisocialtalks.com /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
@@ -346,7 +360,7 @@ Also confirm the live site is still fine: <https://www.antisocialtalks.com>.
 ```powershell
 cd "C:\Users\admin\Downloads\latest code\antisocialtalks"
 tar -czf web.tar.gz --exclude=node_modules --exclude=.next --exclude=.env.local web
-scp web.tar.gz ubuntu@10.90.30.84:/home/ubuntu/
+scp web.tar.gz <ssh-user>@<server-private-ip>:/home/ubuntu/
 ```
 
 ```bash
@@ -400,11 +414,12 @@ only in names, ports and env values.
    `.env.production.example` and a different pm2 port
    (`PORT=3013 pm2 start ecosystem.config.cjs`). The pm2 app name comes from
    the directory, so it will be `antisocialtalks.com` automatically.
-4. **nginx**: `deploy/antisocialtalks.com.nextjs.nginx`, adjusting the
+4. **nginx**: `deploy/nginx/antisocialtalks.com.conf`, adjusting the
    `proxy_pass` port to match. Keep certbot's existing 443 block if there is
    one and replace only the `location` directives inside it.
-5. Set `NEXT_PUBLIC_SITE_URL=https://www.antisocialtalks.com` — that alone
-   switches robots.txt and the meta tag back to indexable.
+5. Set `NEXT_PUBLIC_SITE_URL=https://antisocialtalks.com` and
+   `SITE_INDEXABLE=true` (then rebuild): that switches robots.txt and the meta
+   tag to indexable. Without it the live site tells search engines to stay away.
 6. Purge the Cloudflare cache so nobody is served the old static page.
 
 Rollback, if needed:
@@ -426,10 +441,12 @@ sudo nginx -t && sudo systemctl reload nginx
 | --- | --- |
 | 502 from nginx | pm2 app is down — `pm2 logs stage.antisocialtalks.com` |
 | Pages render, every section empty | `DIRECTUS_TOKEN` missing or unauthorised, or Directus down. Check `curl localhost:8055/server/ping` and the Next log for `[directus]` warnings |
-| Images 404 | The read-only role needs **Read** on `directus_files`, not just the content collections |
-| Forms return an error | The site token's policy needs **Create** on `submissions` — re-run `../cms/scripts/create-site-token.mjs`. Public-policy permissions do not apply to token requests |
+| Images 404 | The website policy needs **Read** on `directus_files`: run `cms/scripts/provision.mjs` |
+| Forms return an error | The website policy needs **Create** on `submissions`: run `cms/scripts/provision.mjs`. Public-policy permissions do not apply to token requests |
+| "Too many attempts" on a form | The per-visitor limit (`web/src/lib/rate-limit.ts`, 10 per 10 minutes); it resets by itself |
+| Home page without pictures, topics or social links | The new CMS collections are empty or missing: run `cms/scripts/provision.mjs` |
 | Shop says Gelato not connected | `GELATO_API_KEY` missing — `npm run verify:gelato` |
-| Checkout returns 501 | Expected. No payment gateway implemented yet — see `web/src/lib/payments.ts` |
+| Checkout returns 501 | `PAYMENT_GATEWAY` is `none` (shop closed) or the Stripe keys are missing |
 | `EACCES` in pm2 logs | The `chown` did not run. Run it on its own line |
 | certbot: "could not find a matching server block" | The nginx file is not symlinked into `sites-enabled`, or `server_name` does not match the domain exactly |
 | pm2 app named `web` or `...-new` | You started pm2 before the directory had its final name. `pm2 delete` it, `cd` into the correct directory, start again |

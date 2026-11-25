@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createItem, uploadFile } from '@/lib/directus';
-import { APPLICATIONS, PROPOSAL_UPLOAD, validateFields, type ApplicationType } from '@/lib/chapters';
+import { APPLICATIONS, PROPOSAL_UPLOAD, contentMatchesType, validateFields, type ApplicationType } from '@/lib/chapters';
 import { sendMail, summarise, teamInbox } from '@/lib/mailer';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,9 @@ export const dynamic = 'force-dynamic';
  * published or approved here; the team reviews each one.
  */
 export async function POST(request: Request) {
+  const limited = rateLimit(request, 'apply');
+  if (limited) return limited;
+
   let form: FormData;
   try {
     form = await request.formData();
@@ -22,7 +26,8 @@ export async function POST(request: Request) {
   }
 
   const type = String(form.get('type') || '') as ApplicationType;
-  const config = APPLICATIONS[type];
+  // Own keys only: "constructor" or "__proto__" must be an unknown type, not a crash.
+  const config = Object.hasOwn(APPLICATIONS, type) ? APPLICATIONS[type] : undefined;
   if (!config) return NextResponse.json({ error: 'Unknown application type.' }, { status: 400 });
 
   // Honeypot: real visitors never see this field.
@@ -46,7 +51,7 @@ export async function POST(request: Request) {
     if (file.size > PROPOSAL_UPLOAD.maxBytes) {
       return NextResponse.json({ error: 'The proposal file is larger than 10 MB.' }, { status: 400 });
     }
-    if (!PROPOSAL_UPLOAD.types.includes(file.type)) {
+    if (!PROPOSAL_UPLOAD.types.includes(file.type) || !contentMatchesType(file.type, new Uint8Array(await file.slice(0, 8).arrayBuffer()))) {
       return NextResponse.json({ error: 'Please upload the proposal as a PDF, Word or PowerPoint file.' }, { status: 400 });
     }
     try {

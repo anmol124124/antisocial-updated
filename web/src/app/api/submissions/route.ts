@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createSubmission } from '@/lib/directus';
 import { sendMail, summarise, teamInbox } from '@/lib/mailer';
 import { isSubmissionType } from '@/lib/community';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,6 +17,9 @@ export const dynamic = 'force-dynamic';
  * whitelisted before it reaches the CMS.
  */
 export async function POST(request: Request) {
+  const limited = rateLimit(request, 'submissions');
+  if (limited) return limited;
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();

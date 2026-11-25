@@ -22,8 +22,47 @@ function directusPattern(): RemotePattern | null {
   }
 }
 
+/**
+ * Security headers on every response. The Content-Security-Policy lists the
+ * only outside hosts the browser loads from: Google Fonts, YouTube thumbnails
+ * and the youtube-nocookie player. Everything else (CMS pictures, video) comes
+ * through this site. 'unsafe-inline' scripts are needed by Next.js itself.
+ * Development is left without a CSP, because hot reloading uses eval.
+ */
+function securityHeaders() {
+  const https = (process.env.NEXT_PUBLIC_SITE_URL || '').startsWith('https://');
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https://i.ytimg.com",
+    "media-src 'self' blob:",
+    'frame-src https://www.youtube-nocookie.com',
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+    ...(https ? ['upgrade-insecure-requests'] : []),
+  ].join('; ');
+
+  return [
+    ...(process.env.NODE_ENV === 'production' ? [{ key: 'Content-Security-Policy', value: csp }] : []),
+    ...(https ? [{ key: 'Strict-Transport-Security', value: 'max-age=31536000' }] : []),
+    { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+    { key: 'X-Content-Type-Options', value: 'nosniff' },
+    { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+    { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+  ];
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  async headers() {
+    return [{ source: '/:path*', headers: securityHeaders() }];
+  },
   async redirects() {
     return [
       // Old URLs keep working. All temporary (307) while the site is on

@@ -29,9 +29,6 @@ export function gelatoIsConfigured(): boolean {
 export const directusUrl = (): string =>
   (process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL || '').replace(/\/$/, '');
 
-export const publicDirectusUrl = (): string =>
-  (process.env.NEXT_PUBLIC_DIRECTUS_URL || '').replace(/\/$/, '');
-
 export const directusToken = (): string => process.env.DIRECTUS_TOKEN || '';
 
 export const shopCurrency = (): string => process.env.NEXT_PUBLIC_SHOP_CURRENCY || 'USD';

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { UnknownOrderError, paymentsAreConfigured, settlePayment } from '@/lib/payments';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,6 +13,9 @@ export const dynamic = 'force-dynamic';
  * paid before anything is delivered.
  */
 export async function POST(request: Request) {
+  const limited = rateLimit(request, 'confirm');
+  if (limited) return limited;
+
   if (!paymentsAreConfigured()) return NextResponse.json({ error: 'Payments are not open.' }, { status: 501 });
 
   let body: { session_id?: unknown };

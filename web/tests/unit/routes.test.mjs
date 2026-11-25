@@ -34,6 +34,7 @@ const routes = {
   cron: await import('@/app/api/cron/orders/route'),
 };
 const { sendMail } = await import('@/lib/mailer');
+const { resetRateLimits, LIMITS } = await import('@/lib/rate-limit');
 
 const CRON_SECRET = 'cron-secret-0123456789abcdef';
 const SITE = 'https://stage.antisocialtalks.com';
@@ -43,6 +44,7 @@ const SITE = 'https://stage.antisocialtalks.com';
 let cms, stripe, gelato, qikink, mail, net, logs;
 
 function boot({ env = SHOP_ENV, failCreate = [], gelatoOptions = {}, qikinkOptions = {} } = {}) {
+  resetRateLimits();
   setEnv({ ...env, CRON_SECRET: env.CRON_SECRET ?? CRON_SECRET });
   cms = createDirectus(seed(), { failCreate });
   stripe = createStripe();
@@ -155,6 +157,17 @@ describe('GET /api/assets/:id', () => {
     assert.equal((await get(FILES.svg)).status, 404, 'SVG could carry script');
   });
 
+  test('a video is streamed as stored, seekable, but never transformed', async () => {
+    boot();
+    const res = await routes.assets.GET(new Request(`http://site.test/api/assets/${FILES.video}`, { headers: { range: 'bytes=0-3' } }), {
+      params: Promise.resolve({ id: FILES.video }),
+    });
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('content-type'), 'video/mp4');
+    assert.equal(res.headers.get('accept-ranges'), 'bytes');
+    assert.equal((await get(FILES.video, '?width=400')).status, 404, 'transform parameters are for images only');
+  });
+
   test('bad or unknown ids are a 404 without asking the CMS', async () => {
     boot();
     assert.equal((await get('../items/orders')).status, 404);
@@ -243,7 +256,12 @@ describe('POST /api/chapters/apply', () => {
     accepted_privacy: 'on',
     accepted_review: 'on',
   };
-  const pdf = (bytes = 2048, type = 'application/pdf') => new File([new Uint8Array(bytes)], 'proposal.pdf', { type });
+  // A file that starts like a real PDF ("%PDF-"), unless `head` says otherwise.
+  const pdf = (bytes = 2048, type = 'application/pdf', head = '%PDF-1.7') => {
+    const data = new Uint8Array(bytes);
+    data.set(new TextEncoder().encode(head).slice(0, bytes));
+    return new File([data], 'proposal.pdf', { type });
+  };
 
   test('Start a Chapter: saved as pending, applicant and team emailed', async () => {
     boot();
@@ -287,6 +305,8 @@ describe('POST /api/chapters/apply', () => {
     boot();
     assert.match((await apply({ ...ORGANISER, attachment: pdf(10 * 1024 * 1024 + 1) })).body.error, /larger than 10 MB/);
     assert.match((await apply({ ...ORGANISER, attachment: pdf(100, 'image/png') })).body.error, /PDF, Word or PowerPoint/);
+    // Labelled a PDF by the browser, but the content is something else (e.g. a renamed program).
+    assert.match((await apply({ ...ORGANISER, attachment: pdf(100, 'application/pdf', 'MZ\x90\x00') })).body.error, /PDF, Word or PowerPoint/);
     assert.equal(cms.files.size, 0);
 
     const r = await apply({ ...ORGANISER, attachment: pdf() });
@@ -302,6 +322,13 @@ describe('POST /api/chapters/apply', () => {
     await apply({ ...FOUNDER, attachment: pdf() });
     assert.equal(cms.files.size, 0);
     assert.equal(cms.rows('applications')[0].attachment, null);
+  });
+
+  test('an unknown or prototype type is a 400, not a crash', async () => {
+    boot();
+    for (const type of ['nope', 'constructor', '__proto__', 'toString']) {
+      assert.equal((await apply({ type })).status, 400, type);
+    }
   });
 
   test('honeypot: thanked, not saved', async () => {
@@ -1222,5 +1249,28 @@ describe('sendMail', () => {
         : signIn(request);
     assert.equal(await sendMail(MESSAGE), false);
     assert.ok(logs.lines.some((l) => /rejected "Hello" \(403\)/.test(l)));
+  });
+});
+
+/* ───────────────────────────── rate limits ───────────────────────────── */
+
+describe('rate limits on the public forms', () => {
+  const post = (ip, type = 'nope') =>
+    routes.submissions.POST(
+      new Request(`${SITE}/api/submissions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'cf-connecting-ip': ip },
+        body: JSON.stringify({ type, email: 'a@example.com' }),
+      }),
+    );
+
+  test('after the limit a visitor gets 429 with Retry-After; others are not affected', async () => {
+    boot();
+    for (let i = 0; i < LIMITS.submissions.max; i++) assert.equal((await post('203.0.113.7')).status, 400, `attempt ${i + 1} is handled`);
+    const blocked = await post('203.0.113.7');
+    assert.equal(blocked.status, 429);
+    assert.ok(Number(blocked.headers.get('retry-after')) > 0);
+    assert.match((await blocked.json()).error, /Too many attempts/);
+    assert.equal((await post('198.51.100.9')).status, 400, 'a different visitor still gets through');
   });
 });

@@ -3,6 +3,7 @@ import { paymentsAreConfigured, startPayment } from '@/lib/payments';
 import { cleanAddress, deliveryOptions, priceCart } from '@/lib/cart-pricing';
 import { MARKETS } from '@/lib/markets';
 import { shopIsOpen } from '@/lib/shop-status';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,6 +20,9 @@ export const dynamic = 'force-dynamic';
  * delivery is re-quoted, so a tampered cart cannot set its own price.
  */
 export async function POST(request: Request) {
+  const limited = rateLimit(request, 'checkout');
+  if (limited) return limited;
+
   if (!shopIsOpen() || !paymentsAreConfigured()) {
     // The visitor gets a plain message; the fix is for whoever reads the log.
     console.warn('[checkout] closed: NEXT_PUBLIC_SHOP_OPEN, PAYMENT_GATEWAY=stripe and STRIPE_SECRET_KEY are all needed');

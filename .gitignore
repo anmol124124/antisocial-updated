@@ -1,0 +1,18 @@
+# Dependencies and build output
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Secrets: real env files never go in git (the *.example templates do)
+.env
+.env.local
+.env.*.local
+cms/.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
