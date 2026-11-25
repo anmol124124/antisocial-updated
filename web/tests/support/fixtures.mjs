@@ -19,6 +19,7 @@ export const FILES = {
   sandMockup: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   galleryPhoto: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
   video: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+  share: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
 };
 
 const SITE = 'https://stage.antisocialtalks.com';
@@ -36,7 +37,10 @@ const withTestFiles = (row) =>
 
 export function seed({ future = '2099-01-01T00:00:00.000Z' } = {}) {
   return {
-    __singletons: Object.fromEntries(Object.entries(SITE_SEED.singletons).map(([k, v]) => [k, withTestFiles(v)])),
+    __singletons: {
+      ...Object.fromEntries(Object.entries(SITE_SEED.singletons).map(([k, v]) => [k, withTestFiles(v)])),
+      site_settings: { ...withTestFiles(SITE_SEED.singletons.site_settings), share_image: FILES.share },
+    },
     ...Object.fromEntries(Object.entries(SITE_SEED.collections).map(([k, rows]) => [k, rows.map((r, i) => ({ id: i + 1, ...withTestFiles(r) }))])),
     __files: [
       { id: FILES.mockup, type: 'image/png', bytes: PNG_1x1 },
@@ -47,6 +51,8 @@ export function seed({ future = '2099-01-01T00:00:00.000Z' } = {}) {
       { id: FILES.tealFront, type: 'image/png', bytes: PNG_1x1 },
       { id: FILES.sandMockup, type: 'image/png', bytes: PNG_1x1 },
       { id: FILES.galleryPhoto, type: 'image/png', bytes: PNG_1x1 },
+      // The real default share picture: /og-image.jpg must answer with a JPEG.
+      { id: FILES.share, type: 'image/jpeg', bytes: Uint8Array.from(readFileSync(new URL('../../../cms/seed/files/og-image.jpg', import.meta.url))) },
       { id: FILES.video, type: 'video/mp4', bytes: Uint8Array.from(Buffer.from('....ftypisom test clip')) },
       { id: FILES.proposal, type: 'application/pdf', bytes: Uint8Array.from(Buffer.from('%PDF-1.4 private')) },
       { id: FILES.svg, type: 'image/svg+xml', bytes: Uint8Array.from(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>')) },
