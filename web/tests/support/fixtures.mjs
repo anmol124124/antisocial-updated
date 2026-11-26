@@ -123,6 +123,16 @@ export function seed({ future = '2099-01-01T00:00:00.000Z' } = {}) {
         invite_code: 'past-talk-invite-3n8q', invite_venue: 'The Old Room, 2 Past Lane', invite_message: null },
       { id: 4, title: 'India: Upcoming Chapter Event', slug: 'india-upcoming-chapter-event', visibility: 'draft', status: 'coming_soon', chapter: null, region: 'India', city: null, blurb: null, theme: null, description: null, audience: null, starts_at: null, timezone: null, venue_name: null, venue_address: null, map_url: null, speakers: null, moderator: null, schedule: null, ticket_info: null, ticket_price: null, ticket_currency: null, capacity: null, accessibility_info: null, terms: null, contact_email: null, recording_url: null, image: null, sort: 4 },
     ],
+    blog_posts: [
+      // A full post: cover, author, the editor's HTML with a CMS picture, and things the site must strip.
+      { id: 1, status: 'published', title: 'Why We Talk', slug: 'why-we-talk', published_at: '2026-11-20T09:00:00.000Z', author: 'Test Author', cover_image: FILES.photo,
+        summary: 'The first test post.',
+        body: `<h1>A big heading</h1><p>Opening line.</p><h2>Section</h2><p>Read <a href="https://example.com">this</a> and <a href="javascript:alert(1)">that</a>.</p><p><img src="https://cms.example.com/assets/${FILES.galleryPhoto}?width=800" alt="Inline picture" onerror="alert(2)"></p><script>alert(3)</script><blockquote><p>Quote line.</p></blockquote>`,
+        date_created: '2026-11-20T09:00:00.000Z', date_updated: null },
+      // No date of its own (goes by when it was created), no cover, no author, no slug.
+      { id: 2, status: 'published', title: 'Second Post Here', slug: null, published_at: null, author: null, cover_image: null, summary: null, body: '<p>Short.</p>', date_created: '2026-11-22T09:00:00.000Z', date_updated: null },
+      { id: 3, status: 'draft', title: 'Secret Draft Post', slug: 'secret-draft-post', published_at: '2026-11-25T09:00:00.000Z', author: null, cover_image: null, summary: 'Not yet.', body: '<p>Draft.</p>', date_created: '2026-11-25T09:00:00.000Z', date_updated: null },
+    ],
     event_registrations: [],
     applications: [],
     submissions: [],

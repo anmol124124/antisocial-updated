@@ -14,9 +14,12 @@ export const SHARE_IMAGE = {
 
 export type ShareImage = { url: string; width: number; height: number; alt: string };
 
-/** A CMS image as a share picture: a 1200px JPEG (some apps don't show WebP previews). */
-export function shareImage(fileId: string | null | undefined, alt: string): ShareImage | null {
-  return fileId ? { url: `/api/assets/${fileId}?width=1200&height=1200&fit=cover&format=jpg&quality=85`, width: 1200, height: 1200, alt } : null;
+/**
+ * A CMS image as a share picture: a 1200px JPEG (some apps don't show WebP previews).
+ * Square by default (portraits); `height` 630 gives the wide card links usually show.
+ */
+export function shareImage(fileId: string | null | undefined, alt: string, height = 1200): ShareImage | null {
+  return fileId ? { url: `/api/assets/${fileId}?width=1200&height=${height}&fit=cover&format=jpg&quality=85`, width: 1200, height, alt } : null;
 }
 
 /**

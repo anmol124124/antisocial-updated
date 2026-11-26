@@ -1,7 +1,7 @@
 # AntiSocialTalks CMS (Directus)
 
 The admin panel where the team edits the website: episodes, guests, hosts, chapters,
-events, shop products, the site settings (contact email, social links, share picture),
+events, blog posts, shop products, the site settings (contact email, social links, share picture),
 the home page (hero lines, introduction, topics, teaser clip), About values, the community forms' wording, the
 Roadshow stops and the Chapters guide. It also receives the forms, bookings and orders.
 
@@ -16,7 +16,7 @@ own least-privilege token, and serves CMS pictures and video through `/api/asset
 | `docker-compose.local.yml` | Local development (throwaway credentials, never deployed) |
 | `.env.example` | Server settings → copy to `.env` next to `docker-compose.yml` |
 | `schema/snapshot.json` | The complete schema: every collection, field and relation |
-| `schema/website-policy.json` | What the website's Directus user may do: read content and files (events: published only); create submissions, applications, files, bookings and orders; read and update orders; read some booking fields and update booking status. Nothing else (no admin app, cannot read submissions or applications back) |
+| `schema/website-policy.json` | What the website's Directus user may do: read content and files (events and blog posts: published only); create submissions, applications, files, bookings and orders; read and update orders; read some booking fields and update booking status. Nothing else (no admin app, cannot read submissions or applications back) |
 | `seed/content.json`, `seed/files/` | Starting content for the site settings and page copy, with its pictures and the teaser clip |
 | `scripts/provision.mjs` | Applies the three above to any Directus. Safe to re-run |
 | `scripts/create-site-token.mjs` | Creates/rotates the website's Directus user and token, and proves what it can and can't do |

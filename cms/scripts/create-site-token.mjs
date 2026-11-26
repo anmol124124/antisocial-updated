@@ -154,7 +154,7 @@ async function verify(token) {
     console.log(`  ${pass ? 'OK  ' : 'FAIL'} ${label}${detail ? `  (${detail})` : ''}`);
   };
 
-  for (const c of ['guests', 'episodes', 'topics', 'chapters', 'events', 'site_settings', 'home_pillars', 'community_ways']) {
+  for (const c of ['guests', 'episodes', 'topics', 'chapters', 'events', 'blog_posts', 'site_settings', 'home_pillars', 'community_ways']) {
     const r = await api(`/items/${c}?limit=1`, { token });
     check(`read ${c}`, r.ok, `HTTP ${r.status}`);
   }

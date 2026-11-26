@@ -24,7 +24,8 @@
   "dependencies": {
     "next": "^15.5.4",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "sanitize-html": "2.18.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.7",
@@ -32,6 +33,7 @@
     "@types/node": "^22.10.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "@types/sanitize-html": "2.16.2",
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.26",
     "tailwindcss": "^4.1.13",

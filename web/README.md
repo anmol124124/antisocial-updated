@@ -37,7 +37,7 @@ npm run dev           # http://localhost:3012
 ## Content: Directus is the source
 
 Everything the team edits comes from Directus: episodes, guests, hosts,
-chapters, events, topics, products, and the site settings and page copy in
+chapters, events, blog posts, topics, products, and the site settings and page copy in
 `site-content.ts`. Changes show within a minute, no deploy needed. What stays
 in code: the page layouts and headings, form logic, the menus and the legal
 pages.
@@ -56,6 +56,16 @@ addresses); a local CMS made before keeps its old login: pass `DIRECTUS_EMAIL`, 
 npm run cms:logs      # follow the Directus log
 npm run cms:down      # stop, keeping the data
 ```
+
+### Blog
+
+`/blogs` lists the published posts in **Blog Posts** (newest first, the newest set
+wide) and `/blogs/<slug>` shows one. A post is written in the CMS rich-text editor;
+its HTML goes through `cleanPostHtml()` (`src/lib/blog-html.ts`) before it reaches
+the page: only headings, paragraphs, lists, quotes, links, pictures and lines are
+kept, and pictures inserted from the CMS library are served through `/api/assets`.
+Drafts never show: the website policy can only read published posts, and the
+query filters on it too. Leave the slug empty to make it from the title.
 
 ### Images
 

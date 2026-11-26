@@ -8,6 +8,7 @@ export const primaryNav: NavItem[] = [
   { href: '/chapters', label: 'Chapters' },
   { href: '/events', label: 'Events' },
   { href: '/shop', label: 'Shop' },
+  { href: '/blogs', label: 'Blogs' },
 ];
 
 export const footerNav: NavItem[] = [

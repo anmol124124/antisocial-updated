@@ -28,6 +28,20 @@
       "presets": null
     },
     {
+      "collection": "blog_posts",
+      "action": "read",
+      "fields": [
+        "*"
+      ],
+      "permissions": {
+        "status": {
+          "_eq": "published"
+        }
+      },
+      "validation": {},
+      "presets": null
+    },
+    {
       "collection": "chapter_guide",
       "action": "read",
       "fields": [

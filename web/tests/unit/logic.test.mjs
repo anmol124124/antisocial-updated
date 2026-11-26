@@ -514,3 +514,54 @@ describe('legal text', async () => {
     assert.ok(TERMS.sections.some((s) => slug(s.heading) === anchor), `no clause with the anchor #${anchor}`);
   });
 });
+
+describe('blog posts', async () => {
+  const { cleanPostHtml, bodyImageSrc, readingMinutes } = await import('@/lib/blog-html');
+  const { postSlug, postDate, formatPostDate } = await import('@/lib/blog');
+  const ID = '6f1c2a9e-3b4d-4e5f-8a7b-9c0d1e2f3a4b';
+
+  test('keeps what the editor makes', () => {
+    const html = '<h2>Why</h2><p>We <strong>talk</strong>, <em>loudly</em>.</p><ul><li>One</li></ul><ol><li>Two</li></ol><blockquote><p>Quote</p></blockquote><hr>';
+    assert.equal(cleanPostHtml(html), '<h2>Why</h2><p>We <strong>talk</strong>, <em>loudly</em>.</p><ul><li>One</li></ul><ol><li>Two</li></ol><blockquote><p>Quote</p></blockquote><hr />');
+  });
+
+  test('drops scripts, handlers, styles, frames and javascript: links', () => {
+    const out = cleanPostHtml(
+      '<p onclick="x()" style="color:red" class="c">Hi<script>alert(1)</script></p><style>p{}</style><iframe src="https://evil.test"></iframe>' +
+        '<a href="javascript:alert(1)">bad</a><a href="//evil.test">proto</a><svg><script>alert(2)</script></svg><form><input></form>',
+    );
+    assert.doesNotMatch(out, /script|alert|onclick|style|class=|iframe|javascript|evil|svg|form|input/i);
+    assert.match(out, /<p>Hi<\/p>/);
+  });
+
+  test('links: other sites open in a new tab, own pages and email stay as they are', () => {
+    assert.equal(cleanPostHtml('<a href="https://example.com" target="_self">x</a>'), '<a href="https://example.com" target="_blank" rel="noopener noreferrer">x</a>');
+    assert.equal(cleanPostHtml('<a href="/episodes">x</a>'), '<a href="/episodes">x</a>');
+    assert.equal(cleanPostHtml('<a href="mailto:team@example.com">x</a>'), '<a href="mailto:team@example.com">x</a>');
+  });
+
+  test('CMS pictures go through /api/assets; any other picture is dropped', () => {
+    const src = `/api/assets/${ID}?width=1600&quality=82&format=webp&withoutEnlargement=true`;
+    assert.equal(bodyImageSrc(`https://cms.antisocialtalks.com/assets/${ID}?width=800`), src);
+    assert.equal(bodyImageSrc(`http://localhost:8055/assets/${ID.toUpperCase()}.jpg`), src);
+    assert.equal(bodyImageSrc('https://evil.test/a.png'), null);
+    assert.equal(bodyImageSrc(`https://evil.test/assets/${ID}x`), null);
+    const out = cleanPostHtml(`<p><img src="http://localhost:8055/assets/${ID}" alt="A room" onerror="x()" width="800"></p><p><img src="https://evil.test/a.png"></p>`);
+    assert.equal(out, `<p><img src="${src.replace(/&/g, '&amp;')}" alt="A room" loading="lazy" decoding="async" width="800" /></p>`);
+  });
+
+  test('a Heading 1 becomes a Heading 2, empty paragraphs go', () => {
+    assert.equal(cleanPostHtml('<h1>Title</h1><p>&nbsp;</p><p><br></p><p>Text</p>'), '<h2>Title</h2><p>Text</p>');
+    assert.equal(cleanPostHtml(null), '');
+  });
+
+  test('reading time, address and date', () => {
+    assert.equal(readingMinutes(`<p>${'word '.repeat(660)}</p>`), 3);
+    assert.equal(readingMinutes(''), 1);
+    assert.equal(postSlug({ slug: null, title: 'Why We Talk?' }), 'why-we-talk');
+    assert.equal(postSlug({ slug: 'My Own Slug', title: 'x' }), 'my-own-slug');
+    assert.equal(postDate({ published_at: null, date_created: '2026-11-20T10:00:00Z' }), '2026-11-20T10:00:00Z');
+    assert.equal(formatPostDate('2026-11-26T23:30:00Z'), '26 November 2026');
+    assert.equal(formatPostDate('nope'), null);
+  });
+});

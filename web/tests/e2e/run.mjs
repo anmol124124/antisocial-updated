@@ -197,7 +197,7 @@ const START_PAGES = [
   '/chapters', '/chapters/start', '/chapters/organise', '/chapters/become-a-leader', '/chapters/what-happens',
   '/chapters/how-to-start', '/chapters/discover-talent', '/chapters/how-to-organise',
   '/chapters/apply/speak', '/chapters/apply/local-team', '/chapters/apply/partner',
-  '/events', '/shop', '/cart', '/checkout', '/terms', '/privacy', '/payment/complete',
+  '/events', '/shop', '/cart', '/checkout', '/terms', '/privacy', '/payment/complete', '/blogs',
 ];
 
 async function crawl() {
@@ -567,10 +567,27 @@ async function runChecks(mode, cms) {
     expect(!invite.body.includes('name="accepted_terms"'), 'an old invitation still has the form');
   });
 
+  await check('blog: published posts newest first, the draft hidden, the post page safe and complete; Blogs in the menu', () => {
+    const list = text('/blogs');
+    expect(list.indexOf('Second Post Here') >= 0 && list.indexOf('Second Post Here') < list.indexOf('Why We Talk'), 'posts should be newest first (a post without its own date goes by when it was created)');
+    expect(!list.includes('Secret Draft Post'), 'the draft post is listed');
+    expect(html('/blogs').includes('href="/blogs/second-post-here"'), 'a post without a slug should get one from its title');
+    expect(/href="\/shop"[^>]*>Shop<\/a><a[^>]*href="\/blogs"[^>]*>Blogs</.test(html('/')), 'Blogs should come right after Shop in the menu');
+    const post = html('/blogs/why-we-talk');
+    const t = text('/blogs/why-we-talk');
+    for (const s of ['Why We Talk', 'By Test Author', '20 November 2026', 'Opening line.', 'Quote line.', 'More from the blog', 'Second Post Here']) expect(t.includes(s), `the post page is missing “${s}”`);
+    expect((post.match(/<h1[\s>]/g) || []).length === 1 && /<h2>A big heading<\/h2>/.test(post), 'a Heading 1 in the text should become a Heading 2');
+    expect(post.includes(`/api/assets/${FILES.galleryPhoto}?width=1600`) && !post.includes('cms.example.com'), 'the picture in the text should go through /api/assets');
+    expect(post.includes('href="https://example.com" target="_blank" rel="noopener noreferrer"'), 'outside links should open in a new tab');
+    expect(!/alert\(|javascript:|onerror/.test(post.replace(/<script type="application\/ld\+json">[^<]*<\/script>/g, '')), 'script from the CMS text reached the page');
+    expect(/<script type="application\/ld\+json">[^<]*"@type":"BlogPosting"/.test(post), 'the article data for search engines is missing');
+    expect(/property="og:type" content="article"/.test(post) && post.includes('height=630'), 'the share card should be an article with the wide cover picture');
+  });
+
   await check('drafts and unknown slugs are 404', async () => {
     const problems = [];
     for (const path of [
-      '/events/india-upcoming-chapter-event', '/shop/retired', '/voices/hidden-guest', '/episodes/nope',
+      '/events/india-upcoming-chapter-event', '/shop/retired', '/voices/hidden-guest', '/episodes/nope', '/blogs/secret-draft-post', '/blogs/nope',
       '/chapters/apply/organise', '/chapters/apply/start', '/community/nope', '/chapters/nowhere', '/no-such-page',
     ]) {
       const page = await get(path);
@@ -617,7 +634,7 @@ async function runChecks(mode, cms) {
       if (page.status !== 200) problems.push(`${path} -> ${page.status}`);
     }
     expectAll(problems, 'sitemap URLs that are not pages');
-    for (const hidden of ['/events/india-upcoming-chapter-event', '/shop/retired', '/voices/hidden-guest']) {
+    for (const hidden of ['/events/india-upcoming-chapter-event', '/shop/retired', '/voices/hidden-guest', '/blogs/secret-draft-post']) {
       expect(!urls.includes(SITE_URL + hidden), `sitemap lists ${hidden}`);
     }
     expect(!urls.some((u) => u.includes('/invite/')), 'the sitemap lists a private invitation page');

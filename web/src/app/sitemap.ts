@@ -8,6 +8,7 @@ import {
   getShopProducts,
   slugify,
 } from '@/lib/content';
+import { getBlogPosts, postDate, postSlug } from '@/lib/blog';
 import { COMMUNITY_FORMS } from '@/lib/community';
 import { APPLICATIONS, COMMUNITY_OPTIONS } from '@/lib/chapters';
 
@@ -33,17 +34,19 @@ const STATIC_PATHS = [
   '/privacy',
   '/community',
   '/shop',
+  '/blogs',
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
   const now = new Date();
 
-  const [episodes, guests, events, products] = await Promise.all([
+  const [episodes, guests, events, products, posts] = await Promise.all([
     getEpisodes(200),
     getGuests(200),
     getEvents(),
     getShopProducts(),
+    getBlogPosts(),
   ]);
 
   return [
@@ -87,6 +90,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${base}/shop/${p.slug || slugify(p.title)}`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    })),
+    ...posts.map((p) => ({
+      url: `${base}/blogs/${postSlug(p)}`,
+      lastModified: new Date(p.date_updated || postDate(p) || now),
+      changeFrequency: 'monthly' as const,
       priority: 0.6,
     })),
   ];
